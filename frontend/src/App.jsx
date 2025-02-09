@@ -21,7 +21,7 @@ import ViewAuctionDetails from "./pages/ViewAuctionDetails";
 import Dashboard from "./pages/Dashboard/Dashboard";
 import Contact from "./pages/Contact";
 import UserProfile from "./pages/UserProfile";
-import Footer from "./layout/Footer";
+import {Footer} from "../src/layout/Footer";
 
 const App = () => {
   const dispatch = useDispatch();

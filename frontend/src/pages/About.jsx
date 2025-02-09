@@ -43,7 +43,7 @@ const About = () => {
         transition={{ duration: 0.7 }}
         className="mb-12"
       >
-        <h1 className="text-[#d6482b] text-4xl font-extrabold leading-tight mb-4 sm:text-5xl md:text-6xl lg:text-7xl">
+        <h1 className="text-primary text-4xl font-extrabold leading-tight mb-4 sm:text-5xl md:text-6xl lg:text-7xl">
           ABOUT US
         </h1>
         <p className="text-lg sm:text-xl md:text-2xl text-gray-700 max-w-4xl mx-auto">

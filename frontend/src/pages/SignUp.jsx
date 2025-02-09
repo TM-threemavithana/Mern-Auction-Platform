@@ -1,7 +1,9 @@
 import { register } from "@/store/slices/userSlice";
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
+import Img1 from "../assets/bg.png";
+import { Container, Title } from "../router/index";
 
 const SignUp = () => {
   const [userName, setUserName] = useState("");
@@ -22,6 +24,16 @@ const SignUp = () => {
   const navigateTo = useNavigate();
   const dispatch = useDispatch();
 
+  useEffect(() => {
+    if (role !== "Auctioneer") {
+      setBankAccountName("");
+      setBankAccountNumber("");
+      setBankName("");
+      setFrimiAccountNumber("");
+      setPaypalEmail("");
+    }
+  }, [role]);
+
   const handleRegister = (e) => {
     e.preventDefault();
     const formData = new FormData();
@@ -32,208 +44,256 @@ const SignUp = () => {
     formData.append("address", address);
     formData.append("role", role);
     formData.append("profileImage", profileImage);
-    role === "Auctioneer" &&
-      (formData.append("bankAccountName", bankAccountName),
-      formData.append("bankAccountNumber", bankAccountNumber),
-      formData.append("bankName", bankName),
-      formData.append("frimiAccountNumber", frimiAccountNumber),
-      formData.append("paypalEmail", paypalEmail));
+    
+    if (role === "Auctioneer") {
+      formData.append("bankAccountName", bankAccountName);
+      formData.append("bankAccountNumber", bankAccountNumber);
+      formData.append("bankName", bankName);
+      formData.append("frimiAccountNumber", frimiAccountNumber);
+      formData.append("paypalEmail", paypalEmail);
+    }
+    
     dispatch(register(formData));
   };
 
   useEffect(() => {
-    if (isAuthenticated) {
-      navigateTo("/");
-    }
-  }, [dispatch, loading, isAuthenticated, navigateTo]);
+    if (isAuthenticated) navigateTo("/");
+  }, [isAuthenticated, navigateTo]);
 
   const imageHandler = (e) => {
     const file = e.target.files[0];
+    if (!file) return;
+    
     const reader = new FileReader();
-    reader.readAsDataURL(file);
     reader.onload = () => {
       setProfileImagePreview(reader.result);
       setProfileImage(file);
     };
+    reader.readAsDataURL(file);
   };
 
   return (
-    <>
-      <section className="w-full ml-0 m-0 h-fit px-5 pt-20 lg:pl-[320px] flex flex-col min-h-screen py-4 justify-center">
-        <div className="bg-white mx-auto w-full h-auto px-2 flex flex-col gap-4 items-center py-4 justify-center rounded-md">
-          <h1
-            className={`text-[#d6482b] text-2xl font-bold mb-2 min-[480px]:text-4xl md:text-6xl xl:text-7xl 2xl:text-8xl`}
-          >
-            Register
-          </h1>
-          <form
-            className="flex flex-col gap-5 w-full"
-            onSubmit={handleRegister}
-          >
-            <p className="font-semibold text-xl md:text-2xl">
-              Personal Details
-            </p>
-            <div className="flex flex-col gap-4 sm:flex-row">
-              <div className="flex flex-col sm:flex-1">
-                <label className="text-[16px] text-stone-600">Full Name</label>
-                <input
-                  type="text"
-                  value={userName}
-                  onChange={(e) => setUserName(e.target.value)}
-                  className="text-[16px] py-2 bg-transparent border-b-[1px] border-b-stone-500 focus:outline-none"
-                />
-              </div>
-              <div className="flex flex-col sm:flex-1">
-                <label className="text-[16px] text-stone-600">Email</label>
-                <input
-                  type="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  className="text-[16px] py-2 bg-transparent border-b-[1px] border-b-stone-500 focus:outline-none"
-                />
-              </div>
+    <section className="relative flex flex-col items-center justify-center min-h-screen bg-gray-100 mt-10">
+      <div
+        className="bg-green w-96 h-10 rounded-full opacity-20 blur-3xl absolute top-1/3 mt-20"
+        style={{ backgroundImage: `url(${Img1})`, backgroundSize: 'cover', backgroundPosition: 'center' }}
+        aria-hidden="true"
+      ></div>
+      <div
+        className="bg-[#241C37] pt-8 h-[30vh] relative w-full"
+        style={{
+          position: 'absolute',
+          top: 0,
+          left: 0,
+          width: '100%',
+          height: '30vh',
+          backgroundImage: `url(${Img1})`,
+          backgroundSize: 'cover',
+          backgroundRepeat: 'no-repeat',
+        }}
+      >
+        <Container>
+          <div>
+            <Title level={3} className="text-white">Sign Up</Title>
+            <div className="flex items-center gap-3">
+              <Title level={5} className="text-green-500 font-normal text-xl">Home</Title>
+              <Title level={5} className="text-white font-normal text-xl">/</Title>
+              <Title level={5} className="text-white font-normal text-xl">Sign Up</Title>
             </div>
-            <div className="flex flex-col gap-4 sm:flex-row">
-              <div className="flex flex-col sm:flex-1">
-                <label className="text-[16px] text-stone-600">Phone</label>
-                <input
-                  type="number"
-                  value={phone}
-                  onChange={(e) => setPhone(e.target.value)}
-                  className="text-[16px] py-2 bg-transparent border-b-[1px] border-b-stone-500 focus:outline-none"
-                />
-              </div>
-              <div className="flex flex-col sm:flex-1">
-                <label className="text-[16px] text-stone-600">Address</label>
-                <input
-                  type="text"
-                  value={address}
-                  onChange={(e) => setAddress(e.target.value)}
-                  className="text-[16px] py-2 bg-transparent border-b-[1px] border-b-stone-500 focus:outline-none"
-                />
-              </div>
+          </div>
+        </Container>
+      </div>
+
+      <div className="w-75 bg-white shadow-lg rounded-lg p-8 mt-20 flex flex-col items-center z-10 justify-center">
+        <h1 className="text-[#d6482b] text-4xl font-bold mb-2">Register</h1>
+        
+        <form className="flex flex-col gap-5 w-full px-4" onSubmit={handleRegister}>
+          <p className="font-semibold text-2xl">Personal Details</p>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="flex flex-col">
+              <label className="text-stone-600">Full Name *</label>
+              <input
+                type="text"
+                value={userName}
+                onChange={(e) => setUserName(e.target.value)}
+                className="input-field"
+                required
+              />
             </div>
-            <div className="flex flex-col gap-4 sm:flex-row">
-              <div className="flex flex-col sm:flex-1">
-                <label className="text-[16px] text-stone-600">Role</label>
-                <select
-                  value={role}
-                  onChange={(e) => setRole(e.target.value)}
-                  className="text-[16px] py-2 bg-transparent border-b-[1px] border-b-stone-500 focus:outline-none"
-                >
-                  <option value="">Select Role</option>
-                  <option value="Auctioneer">Auctioneer</option>
-                  <option value="Bidder">Bidder</option>
-                </select>
-              </div>
-              <div className="flex flex-col sm:flex-1">
-                <label className="text-[16px] text-stone-600">Password</label>
-                <input
-                  type="password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  className="text-[16px] py-2 bg-transparent border-b-[1px] border-b-stone-500 focus:outline-none"
-                />
-              </div>
+            
+            <div className="flex flex-col">
+              <label className="text-stone-600">Email *</label>
+              <input
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                className="input-field"
+                required
+              />
             </div>
-            <div className="flex flex-col sm:flex-1 gap-2">
-              <label className="text-[16px] text-stone-600">
-                Profile Image
-              </label>
-              <div className="flex items-center gap-3">
-                <img
-                  src={
-                    profileImagePreview
-                      ? profileImagePreview
-                      : "/imageHolder.jpg"
-                  }
-                  alt="profileImagePreview"
-                  className="w-14 h-14 rounded-full"
-                />
-                <input type="file" onChange={imageHandler} />
-              </div>
+
+            <div className="flex flex-col">
+              <label className="text-stone-600">Phone *</label>
+              <input
+                type="tel"
+                value={phone}
+                onChange={(e) => setPhone(e.target.value)}
+                className="input-field"
+                required
+              />
             </div>
+
+            <div className="flex flex-col">
+              <label className="text-stone-600">Address *</label>
+              <input
+                type="text"
+                value={address}
+                onChange={(e) => setAddress(e.target.value)}
+                className="input-field"
+                required
+              />
+            </div>
+
+            <div className="flex flex-col">
+              <label className="text-stone-600">Role *</label>
+              <select
+                value={role}
+                onChange={(e) => setRole(e.target.value)}
+                className="input-field"
+                required
+              >
+                <option value="">Select Role</option>
+                <option value="Auctioneer">Auctioneer</option>
+                <option value="Bidder">Bidder</option>
+              </select>
+            </div>
+
+            <div className="flex flex-col">
+              <label className="text-stone-600">Password *</label>
+              <input
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                className="input-field"
+                required
+              />
+            </div>
+          </div>
+
+          <div className="flex flex-col gap-2">
+            <label className="text-stone-600">Profile Image</label>
+            <div className="flex items-center gap-3">
+              <img
+                src={profileImagePreview || "/imageHolder.jpg"}
+                alt="Profile preview"
+                className="w-14 h-14 rounded-full object-cover"
+              />
+              <input 
+                type="file" 
+                onChange={imageHandler} 
+                accept="image/*"
+                className="file-input"
+              />
+            </div>
+          </div>
+
+          {role === "Auctioneer" && (
             <div className="flex flex-col gap-4">
-              <label className="font-semibold text-xl md:2xl flex flex-col">
-                Payment Method Details{" "}
-                <span className="text-[12px] text-stone-500">
-                  Fill Payment Details Only If you are registering as an
-                  Auctioneer
+              <p className="font-semibold text-2xl">
+                Payment Method Details *
+                <span className="block text-sm text-stone-500 font-normal mt-1">
+                  Required for Auctioneer registration
                 </span>
-              </label>
-              <div className="flex flex-col gap-2">
-                <label className="text-[16px] text-stone-500">
-                  Bank Details
-                </label>
-                <div className="flex flex-col gap-1 sm:flex-row sm:gap-4">
+              </p>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="flex flex-col">
+                  <label className="text-stone-600">Bank Name *</label>
                   <select
                     value={bankName}
                     onChange={(e) => setBankName(e.target.value)}
-                    className="text-[16px] py-2 bg-transparent border-b-[1px] border-b-stone-500 focus:outline-none sm:flex-1"
-                    disabled={role === "Bidder"}
+                    className="input-field"
+                    required
                   >
-                    <option value="">Select Your Bank</option>
-                    <option value="Meezan Bank">Sampath Bank</option>
-                    <option value="UBL">BOC Bank</option>
-                    <option value="HBL">People's Bank</option>
-                    <option value="Allied Bank">HNB Bank</option>
+                    <option value="">Select Bank</option>
+                    <option value="Sampath Bank">Sampath Bank</option>
+                    <option value="BOC Bank">BOC Bank</option>
+                    <option value="People's Bank">People's Bank</option>
+                    <option value="HNB Bank">HNB Bank</option>
                   </select>
+                </div>
+
+                <div className="flex flex-col">
+                  <label className="text-stone-600">Bank Account Number *</label>
                   <input
                     type="text"
                     value={bankAccountNumber}
-                    placeholder="Bank Account Number"
                     onChange={(e) => setBankAccountNumber(e.target.value)}
-                    className="text-[16px] py-2 bg-transparent border-b-[1px] border-b-stone-500 focus:outline-none sm:flex-1"
-                    disabled={role === "Bidder"}
+                    className="input-field"
+                    required
                   />
+                </div>
+
+                <div className="flex flex-col">
+                  <label className="text-stone-600">Account Holder Name *</label>
                   <input
                     type="text"
                     value={bankAccountName}
-                    placeholder="Bank Account UserName"
                     onChange={(e) => setBankAccountName(e.target.value)}
-                    className="text-[16px] py-2 bg-transparent border-b-[1px] border-b-stone-500 focus:outline-none sm:flex-1"
-                    disabled={role === "Bidder"}
+                    className="input-field"
+                    required
                   />
                 </div>
-              </div>
-              <div>
-                <label className="text-[16px] text-stone-600 font-semibold">
-                  Frimi And Paypal Details
-                </label>
-                <div className="flex flex-col gap-1 sm:flex-row sm:gap-4">
+
+                <div className="flex flex-col">
+                  <label className="text-stone-600">Frimi Account Number *</label>
                   <input
-                    type="number"
+                    type="text"
                     value={frimiAccountNumber}
-                    placeholder="Frimi Account Number"
                     onChange={(e) => setFrimiAccountNumber(e.target.value)}
-                    className="text-[16px] py-2 bg-transparent border-b-[1px] border-b-stone-500 focus:outline-none sm:flex-1"
-                    disabled={role === "Bidder"}
+                    className="input-field"
+                    required
                   />
+                </div>
+
+                <div className="flex flex-col">
+                  <label className="text-stone-600">PayPal Email *</label>
                   <input
                     type="email"
                     value={paypalEmail}
-                    placeholder="Paypal Email"
                     onChange={(e) => setPaypalEmail(e.target.value)}
-                    className="text-[16px] py-2 bg-transparent border-b-[1px] border-b-stone-500 focus:outline-none sm:flex-1"
-                    disabled={role === "Bidder"}
+                    className="input-field"
+                    required
                   />
                 </div>
               </div>
             </div>
+          )}
 
-            <button
-              className="bg-[#d6482b] w-[420px] font-semibold hover:bg-[#b8381e] transition-all duration-300 text-xl py-2 px-4 rounded-md text-white mx-auto lg:w-[640px] my-4"
-              type="submit"
-              disabled={loading}
-            >
-              {loading && "Registering..."}
-              {!loading && "Register"}
-            </button>
-          </form>
-        </div>
-      </section>
-    </>
+          <button
+            className="bg-[#d6482b] w-full max-w-[420px] lg:max-w-[640px] font-semibold hover:bg-[#b8381e] transition-all duration-300 text-xl py-2 px-4 rounded-md text-white mx-auto my-4"
+            type="submit"
+            disabled={loading}
+          >
+            {loading ? "Registering..." : "Register"}
+          </button>
+        </form>
+        <p className="text-center text-gray-700 mt-6">
+          Already have an account? <Link to="/login" className="text-[#d6482b]">Login</Link>
+        </p>
+      </div>
+    </section>
   );
 };
 
 export default SignUp;
+
+// Add this CSS in your global styles or as a CSS module
+// .input-field {
+//   @apply w-full py-2 bg-transparent border-b-2 border-stone-300 focus:outline-none focus:border-[#d6482b];
+// }
+
+// .file-input {
+//   @apply file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-[#d6482b] file:text-white hover:file:bg-[#b8381e];
+// }

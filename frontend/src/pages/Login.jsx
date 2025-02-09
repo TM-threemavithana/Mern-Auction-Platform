@@ -1,7 +1,9 @@
 import { login } from "@/store/slices/userSlice";
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
+import Img1 from "../assets/bg.png";
+import { Container, Title } from "../router/index";
 
 const Login = () => {
   const [email, setEmail] = useState("");
@@ -27,12 +29,49 @@ const Login = () => {
   }, [isAuthenticated, navigateTo]);
 
   return (
-    <section className="w-full min-h-screen flex justify-center items-center bg-gradient-to-r from-gray-100 to-gray-300 px-5 py-20">
-      <div className="w-full max-w-md bg-white shadow-lg rounded-lg p-8">
+    <section className="relative flex flex-col items-center justify-center min-h-screen bg-gray-100 mt-10">
+      <div
+        className="bg-green w-96 h-10 rounded-full opacity-20 blur-3xl absolute top-1/3 mt-20"
+        style={{ backgroundImage: `url(${Img1})`, backgroundSize: 'cover', backgroundPosition: 'center' }}
+        aria-hidden="true"
+      ></div>
+      <div
+        className="bg-[#241C37] pt-8 h-[30vh] relative w-full"
+        style={{
+          position: 'absolute',
+          top: 0,
+          left: 0,
+          width: '100%',
+          height: '30vh',
+          backgroundImage: `url(${Img1})`,
+          backgroundSize: 'cover',
+          backgroundRepeat: 'no-repeat',
+        }}
+      >
+        <Container>
+          <div>
+            <Title level={3} className="text-white">
+              Log In
+            </Title>
+            <div className="flex items-center gap-3">
+              <Title level={5} className="text-green-500 font-normal text-xl">
+                Home
+              </Title>
+              <Title level={5} className="text-white font-normal text-xl">
+                /
+              </Title>
+              <Title level={5} className="text-white font-normal text-xl">
+                Log In
+              </Title>
+            </div>
+          </div>
+        </Container>
+      </div>
+      <div className="w-full max-w-md bg-white shadow-lg rounded-lg p-8 mt-20 flex flex-col items-center z-10 justify-center">
         <h1 className="text-3xl font-extrabold text-center text-[#d6482b] mb-6">
           Login
         </h1>
-        <form onSubmit={handleLogin} className="space-y-6">
+        <form onSubmit={handleLogin} className="space-y-6 w-full">
           <div className="space-y-1">
             <label className="block text-gray-700 font-medium">Email</label>
             <input
@@ -65,6 +104,9 @@ const Login = () => {
             {loading ? "Logging In..." : "Login"}
           </button>
         </form>
+        <p className="text-center text-gray-700 mt-6">
+          Don't have an account? <Link to="/sign-up" className="text-[#d6482b]">Sign Up</Link>
+        </p>
       </div>
     </section>
   );

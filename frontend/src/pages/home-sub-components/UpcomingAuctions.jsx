@@ -59,7 +59,7 @@ const UpcomingAuctions = () => {
                       Starting Bid:
                     </p>{" "}
                     <p className="text-[#fdba88 font-semibold]">
-                      Rs. {element.startingBid}
+                      $ {element.startingBid}
                     </p>{" "}
                   </div>
                   <div className="flex flex-col">
@@ -126,7 +126,7 @@ const UpcomingAuctions = () => {
                       Starting Bid:
                     </p>{" "}
                     <p className="text-[#fdba88 font-semibold]">
-                      Rs. {element.startingBid}
+                      $ {element.startingBid}
                     </p>{" "}
                   </div>
                   <div className="flex flex-col">

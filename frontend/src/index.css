@@ -79,3 +79,10 @@
     width: 100%;
   }
 }
+ .input-field {
+     @apply w-full py-2 bg-transparent border-b-2 border-stone-300 focus:outline-none focus:border-[#d6482b];
+   }
+  
+   .file-input {
+     @apply file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-[#d6482b] file:text-white hover:file:bg-[#b8381e];
+  }

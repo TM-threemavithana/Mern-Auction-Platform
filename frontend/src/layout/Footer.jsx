@@ -1,70 +1,111 @@
-import React from 'react'
+import { Container, PrimaryButton, ProfileCard, Title } from "../components/Design";
+import { FiPhoneOutgoing } from "react-icons/fi";
+import { MdOutlineAttachEmail } from "react-icons/md";
+import { IoLocationOutline } from "react-icons/io5";
+import { FaInstagram } from "react-icons/fa";
+import { CiLinkedin, CiTwitter } from "react-icons/ci";
+import { AiOutlineYoutube } from "react-icons/ai";
+import { useLocation } from "react-router-dom";
 
-const Footer = () => {
-    return (
-        <>
-            <div className="bg-gray-900 text-white py-10">
-                <div className="container mx-auto px-5">
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
-                        {/* Footer Section 1 */}
-                        <div className="ft-1">
-                            <h3 className="text-3xl font-bold mb-4"><span className="text-teal-400">bid</span>spirit</h3>
-                            <p className="mb-6">Lorem ipsum dolor, sit amet consectetur adipisicing elit. Laborum ea quo ex ullam laboriosam magni totam, facere eos iure voluptate.</p>
-                            <div className="flex space-x-4">
-                                <a href="#" className="hover:text-teal-400">
-                                    <i className="fab fa-facebook fa-2x"></i>
-                                </a>
-                                <a href="#" className="hover:text-teal-400">
-                                    <i className="fab fa-twitter fa-2x"></i>
-                                </a>
-                                <a href="#" className="hover:text-teal-400">
-                                    <i className="fab fa-instagram fa-2x"></i>
-                                </a>
-                                <a href="#" className="hover:text-teal-400">
-                                    <i className="fab fa-linkedin-in fa-2x"></i>
-                                </a>
-                            </div>
-                        </div>
-                        {/* Footer Section 2 */}
-                        <div className="ft-2">
-                            <h5 className="text-xl font-semibold mb-4">Quick Links</h5>
-                            <ul className="space-y-3">
-                                <li>
-                                    <a className="hover:text-teal-400" href="/">Home</a>
-                                </li>
-                                <li>
-                                    <a className="hover:text-teal-400" href="/how-it-works-info">How it Works</a>
-                                </li>
-                                <li>
-                                    <a className="hover:text-teal-400" href="/contact">Contact Us</a>
-                                </li>
-                                <li>
-                                    <a className="hover:text-teal-400" href="/about">About Us</a>
-                                </li>
-                                
-                            </ul>
-                        </div>
-                        {/* Footer Section 3 */}
-                        <div className="ft-3">
-                            <h5 className="text-xl font-semibold mb-4">Contact Us</h5>
-                            <p className="mb-3 flex items-center">
-                                <i className="fas fa-phone-volume mr-2"></i> +92 3121324083
-                            </p>
-                            <p className="mb-3 flex items-center">
-                                <i className="fas fa-envelope mr-2"></i> waleedishfaq1515@gmail.com
-                            </p>
-                            <p className="mb-3 flex items-center">
-                                <i className="fas fa-paper-plane mr-2"></i> Abbottabad, Pakistan
-                            </p>
-                        </div>
-                    </div>
+export const Footer = () => {
+  const location = useLocation();
+  const isHomePage = location.pathname === "/";
+  return (
+    <>
+      <footer className=" relative bg-primary py-16 mt-16">
+        {isHomePage && <div className="bg-white w-full py-20 -mt-10 rounded-b-[40px] z-10 absolute top-0"></div>}
+
+        <Container className={`${isHomePage ? "mt-32" : "mt-0"} flex flex-col md:flex-row justify-between gap-12`}>
+          <div className="w-full md:w-1/3">
+            <img src="../images/common/header-logo.png" alt="" />
+            <br />
+            <p className="text-gray-300">Created with the collaboration of over 60 of the worlds best Nuron Artists.</p>
+            <div className="bg-gray-300 h-[1px] my-8"></div>
+            <Title className=" font-normal text-gray-100">Get The Latest Nuron Updates</Title>
+            <div className="flex items-center justify-between mt-5">
+              <input type="text" placeholder="Enter your email" className="w-full h-full p-3.5 py-[15px] text-sm border-none outline-none rounded-l-md" />
+              <PrimaryButton className="rounded-none py-3.5 px-8 text-sm hover:bg-indigo-800 rounded-r-md">Submit</PrimaryButton>
+            </div>
+            <p className="text-gray-300 text-sm mt-3">Email is safe. We dont spam.</p>
+          </div>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-8 w-full md:w-2/3">
+            <div>
+              <Title level={5} className="text-white font-normal">
+                Auction Categories
+              </Title>
+              <ul className="flex flex-col gap-5 mt-8 text-gray-200">
+                <p>Ending Now</p>
+                <p>Vehicles</p>
+                <p>Watches</p>
+                <p>Electronics</p>
+                <p>Real Estate</p>
+                <p>Jewelry</p>
+                <p>Art</p>
+                <p>Sports & Outdoor</p>
+              </ul>
+            </div>
+            <div>
+              <Title level={5} className="text-white font-normal">
+                About Us
+              </Title>
+              <ul className="flex flex-col gap-5 mt-8 text-gray-200">
+                <p>About Sbidu</p>
+                <p>Help</p>
+                <p>Affiliates</p>
+                <p>Jobs</p>
+                <p>Press</p>
+                <p>Our blog</p>
+                <p>Collectors portal</p>
+              </ul>
+            </div>
+            <div>
+              <Title level={5} className="text-white font-normal">
+                We are Here to Help
+              </Title>
+              <ul className="flex flex-col gap-5 mt-8 text-gray-200">
+                <p>Your Account</p>
+                <p>Safe and Secure</p>
+                <p>Shipping Information</p>
+                <p>Contact Us</p>
+                <p>Help & FAQ</p>
+              </ul>
+            </div>
+            <div>
+              <Title level={5} className="text-white font-normal">
+                Follow Us
+              </Title>
+              <ul className="flex flex-col gap-5 mt-8 text-gray-200">
+                <div className="flex items-center gap-2">
+                  <FiPhoneOutgoing size={19} />
+                  <span>(646) 968-0608</span>
                 </div>
+                <div className="flex items-center gap-2">
+                  <MdOutlineAttachEmail size={22} />
+                  <span>help@engotheme.com</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <IoLocationOutline size={22} />
+                  <span>1201 Broadway Suite</span>
+                </div>
+              </ul>
+              <div className="flex items-center mt-5 justify-between">
+                <ProfileCard className="bg-white">
+                  <AiOutlineYoutube size={22} />
+                </ProfileCard>
+                <ProfileCard className="bg-white">
+                  <FaInstagram size={22} />
+                </ProfileCard>
+                <ProfileCard className="bg-white">
+                  <CiTwitter size={22} />
+                </ProfileCard>
+                <ProfileCard className="bg-white">
+                  <CiLinkedin size={22} />
+                </ProfileCard>
+              </div>
             </div>
-            <div className="bg-gray-800 py-3">
-                <p className="text-center text-gray-400">Design By T.M. Threemavithana</p>
-            </div>
-        </>
-    )
-}
-
-export default Footer;
+          </div>
+        </Container>
+      </footer>
+    </>
+  );
+};
