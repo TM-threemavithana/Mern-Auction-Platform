@@ -21,7 +21,7 @@ const UpcomingAuctions = () => {
           Auctions For Today
         </h3>
         <div className="flex flex-wrap gap-6">
-          <div  className="bg-[#161613] w-full p-2 gap-10 rounded-md flex flex-col justify-between lg:flex-1 lg:h-auto lg:p-6 2xl:flex-none 2xl:basis-64 2xl:flex-grow 2xl:px-2  2xl:py-6">
+          <div className="bg-[#161613] w-full p-2 gap-10 rounded-md flex flex-col justify-between lg:flex-1 lg:h-auto lg:p-6 2xl:flex-none 2xl:basis-64 2xl:flex-grow 2xl:px-2  2xl:py-6">
             <span className="rounded-full bg-[#fdba88] text-white w-fit p-3">
               <RiAuctionFill />
             </span>
@@ -38,9 +38,18 @@ const UpcomingAuctions = () => {
           </div>
           <div className="flex flex-col gap-4 w-full lg:flex-1 2xl:flex-none 2xl:basis-64 2xl:flex-grow">
             {auctionsStartingToday.slice(0, 2).map((element) => {
+              const formattedStartTime = new Date(element.startTime).toLocaleString("en-US", {
+                weekday: "short",
+                year: "numeric",
+                month: "short",
+                day: "numeric",
+                hour: "2-digit",
+                minute: "2-digit",
+                hour12: true,
+              });
               return (
                 <Link
-                to={`/auction/item/${element._id}`}
+                  to={`/auction/item/${element._id}`}
                   key={element._id}
                   className="w-full flex flex-col gap-4 bg-white p-2 rounded-md 2xl:gap-2 hover:shadow-md transition-all duration-300"
                 >
@@ -64,7 +73,7 @@ const UpcomingAuctions = () => {
                   </div>
                   <div className="flex flex-col">
                     <p className="text-stone-600 font-bold">Starting Time:</p>
-                    <p className="text-black text-[12px]">{element.startTime}</p>
+                    <p className="text-black text-[12px]">{formattedStartTime}</p>
                   </div>
                 </Link>
               );
@@ -73,8 +82,18 @@ const UpcomingAuctions = () => {
 
           <div className="flex flex-col gap-4 w-full 2xl:basis-64 2xl:flex-grow">
             {auctionsStartingToday.slice(2, 4).map((element) => {
+              const formattedStartTime = new Date(element.startTime).toLocaleString("en-US", {
+                weekday: "short",
+                year: "numeric",
+                month: "short",
+                day: "numeric",
+                hour: "2-digit",
+                minute: "2-digit",
+                hour12: true,
+              });
               return (
-                <Link  to={`/auction/item/${element._id}`}
+                <Link
+                  to={`/auction/item/${element._id}`}
                   key={element._id}
                   className="w-full flex flex-col gap-4 bg-white p-2 rounded-md 2xl:gap-2 hover:shadow-md transition-all duration-300"
                 >
@@ -98,7 +117,7 @@ const UpcomingAuctions = () => {
                   </div>
                   <div className="flex flex-col">
                     <p className="text-stone-600 font-bold">Starting Time:</p>
-                    <p className="text-black  text-[12px]">{element.startTime}</p>
+                    <p className="text-black text-[12px]">{formattedStartTime}</p>
                   </div>
                 </Link>
               );
@@ -106,8 +125,18 @@ const UpcomingAuctions = () => {
           </div>
           <div className="flex flex-col gap-4 w-full 2xl:basis-64 2xl:flex-grow">
             {auctionsStartingToday.slice(4, 6).map((element) => {
+              const formattedStartTime = new Date(element.startTime).toLocaleString("en-US", {
+                weekday: "short",
+                year: "numeric",
+                month: "short",
+                day: "numeric",
+                hour: "2-digit",
+                minute: "2-digit",
+                hour12: true,
+              });
               return (
-                <Link to={`/auction/item/${element._id}`}
+                <Link
+                  to={`/auction/item/${element._id}`}
                   key={element._id}
                   className="w-full flex flex-col gap-4 bg-white p-2 rounded-md 2xl:gap-2 hover:shadow-md transition-all duration-300"
                 >
@@ -131,7 +160,7 @@ const UpcomingAuctions = () => {
                   </div>
                   <div className="flex flex-col">
                     <p className="text-stone-600 font-bold">Starting Time:</p>
-                    <p className="text-black  text-[12px]">{element.startTime}</p>
+                    <p className="text-black text-[12px]">{formattedStartTime}</p>
                   </div>
                 </Link>
               );
