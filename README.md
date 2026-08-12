@@ -153,6 +153,18 @@ Never commit `backend/config/config.env`, `frontend/.env.local`, private keys, o
 - Requests are protected with Helmet, CORS allow-listing, body limits, file limits, and rate limits.
 - Production error responses do not expose internal error details.
 
+## Demo payment workflow
+
+The included payment centre is intentionally a **mock gateway** for product demonstrations. It models the complete auction-payment lifecycle without collecting card details or transferring real money:
+
+1. After an auction closes, a payment record is created for the winning bidder.
+2. The winning bidder opens **My Payments** and completes a demo checkout.
+3. The payment becomes `payout_pending`; an administrator may release the simulated seller payout.
+4. Buyers can request refunds and either party can open a dispute.
+5. An administrator resolves a refund or dispute to a simulated refund or payout release.
+
+Set `PAYMENT_PROVIDER=mock` until a merchant account and signed provider integration are available. A real Sri Lankan gateway integration requires merchant approval, provider-issued credentials, public webhook URLs, and legal review of marketplace settlement and disputes.
+
 ## Quality checks
 
 Run these checks before every release:

@@ -10,6 +10,7 @@ import AuctionItemDelete from "./sub-components/AuctionItemDelete";
 import BiddersAuctioneersGraph from "./sub-components/BiddersAuctioneersGraph";
 import PaymentGraph from "./sub-components/PaymentGraph";
 import PaymentProofs from "./sub-components/PaymentProofs";
+import PaymentOperations from "./sub-components/PaymentOperations";
 import Spinner from "@/custom-components/Spinner";
 import { useNavigate } from "react-router-dom";
 
@@ -63,6 +64,9 @@ const Dashboard = () => {
           </DashboardSection>
           <DashboardSection title="Payment Proofs">
             <PaymentProofs />
+          </DashboardSection>
+          <DashboardSection title="Demo Payment Operations">
+            <PaymentOperations />
           </DashboardSection>
           <DashboardSection title="Delete Items From Auction">
             <AuctionItemDelete />

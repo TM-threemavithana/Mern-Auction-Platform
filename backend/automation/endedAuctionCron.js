@@ -2,7 +2,7 @@ import cron from "node-cron";
 import { Auction } from "../models/auctionSchema.js";
 import { User } from "../models/userSchema.js";
 import { sendEmail } from "../utils/sendEmail.js";
-import { calculateCommission } from "../controllers/commissionController.js";
+import { createAuctionPayment } from "../controllers/paymentController.js";
 
 export const endedAuctionCron = () => {
   cron.schedule("*/1 * * * *", async () => {
@@ -14,7 +14,6 @@ export const endedAuctionCron = () => {
     });
     for (const auction of endedAuctions) {
       try {
-        const commissionAmount = await calculateCommission(auction._id);
         auction.commissionCalculated = true;
         const auctioneer = await User.findById(auction.createdBy);
         if (auction.highestBidder) {
@@ -33,17 +32,9 @@ export const endedAuctionCron = () => {
             },
             { new: true }
           );
-          await User.findByIdAndUpdate(
-            auctioneer._id,
-            {
-              $inc: {
-                unpaidCommission: commissionAmount,
-              },
-            },
-            { new: true }
-          );
+          await createAuctionPayment(auction);
           const subject = `Congratulations! You won the auction for ${auction.title}`;
-          const message = `Dear ${bidder.userName}, \n\nCongratulations! You have won the auction for ${auction.title}. \n\nContact the auctioneer at ${auctioneer.email} to arrange payment.\n\nPayment details:\n\n1. Bank transfer\n- Account name: ${auctioneer.paymentMethods.bankTransfer?.bankAccountName || "Not provided"}\n- Account number: ${auctioneer.paymentMethods.bankTransfer?.bankAccountNumber || "Not provided"}\n- Bank: ${auctioneer.paymentMethods.bankTransfer?.bankName || "Not provided"}\n\n2. Frimi\n- Account number: ${auctioneer.paymentMethods.frimi?.frimiAccountNumber || "Not provided"}\n\n3. PayPal\n- Email: ${auctioneer.paymentMethods.paypal?.paypalEmail || "Not provided"}\n\nThank you for participating in BidSpirit.`;
+          const message = `Dear ${bidder.userName}, \n\nCongratulations! You won the auction for ${auction.title}. Please sign in to BidSpirit and open My Payments to complete checkout.\n\nThank you for participating in BidSpirit.`;
           console.log("SENDING EMAIL TO HIGHEST BIDDER");
           sendEmail({ email: bidder.email, subject, message });
           console.log("SUCCESSFULLY EMAIL SEND TO HIGHEST BIDDER");

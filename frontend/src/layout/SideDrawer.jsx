@@ -25,6 +25,7 @@ const Navbar = () => {
     ["/contact", "Contact"],
   ];
   if (user?.role === "Auctioneer") links.splice(2, 0, ["/create-auction", "Create Auction"], ["/view-my-auctions", "My Auctions"]);
+  if (user?.role === "Bidder") links.splice(2, 0, ["/payments", "My Payments"]);
   if (user?.role === "Super Admin") links.splice(2, 0, ["/dashboard", "Dashboard"]);
 
   return (

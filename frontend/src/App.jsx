@@ -22,6 +22,7 @@ import Dashboard from "./pages/Dashboard/Dashboard";
 import Contact from "./pages/Contact";
 import UserProfile from "./pages/UserProfile";
 import ProtectedRoute from "./components/ProtectedRoute";
+import Payments from "./pages/Payments";
 import {Footer} from "../src/layout/Footer";
 
 const App = () => {
@@ -52,6 +53,7 @@ const App = () => {
         <Route path="/dashboard" element={<ProtectedRoute roles={["Super Admin"]}><Dashboard /></ProtectedRoute>} />
         <Route path="/contact" element={<Contact />} />
         <Route path="/me" element={<ProtectedRoute><UserProfile /></ProtectedRoute>} />
+        <Route path="/payments" element={<ProtectedRoute roles={["Bidder", "Auctioneer"]}><Payments /></ProtectedRoute>} />
         
       </Routes>
       </main>

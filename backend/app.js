@@ -12,6 +12,7 @@ import auctionItemRouter from "./router/auctionItemRoutes.js";
 import bidRouter from "./router/bidRoutes.js";
 import commissionRouter from "./router/commissionRouter.js";
 import superAdminRouter from "./router/superAdminRoutes.js";
+import paymentRouter from "./router/paymentRouter.js";
 
 const app = express();
 config({
@@ -61,6 +62,7 @@ app.use("/api/v1/auctionitem", auctionItemRouter);
 app.use("/api/v1/bid", bidRouter);
 app.use("/api/v1/commission", commissionRouter);
 app.use("/api/v1/superadmin", superAdminRouter);
+app.use("/api/v1/payments", paymentRouter);
 
 app.use((req, res, next) => next(new ErrorHandler("Route not found.", 404)));
 app.use(errorMiddleware);
