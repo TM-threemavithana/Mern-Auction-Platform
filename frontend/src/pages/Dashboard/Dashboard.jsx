@@ -4,7 +4,7 @@ import {
   getAllUsers,
   getMonthlyRevenue,
 } from "@/store/slices/superAdminSlice";
-import React, { useEffect } from "react";
+import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import AuctionItemDelete from "./sub-components/AuctionItemDelete";
 import BiddersAuctioneersGraph from "./sub-components/BiddersAuctioneersGraph";
@@ -49,12 +49,12 @@ const Dashboard = () => {
   }
 
   return (
-    <section className="w-full h-full flex items-center justify-center bg-gray-100 py-10 my-5">
-      <div className="bg-white shadow-md rounded-lg w-full max-w-6xl p-6">
+    <section className="w-full bg-gray-100 px-4 py-8 sm:px-6">
+      <div className="mx-auto w-full max-w-6xl rounded-lg bg-white p-4 shadow-md sm:p-6">
         <h1 className="text-primary text-4xl font-bold mb-10 text-center">
           Dashboard
         </h1>
-        <div className="flex flex-col gap-10">
+        <div className="flex flex-col gap-8 sm:gap-10">
           <DashboardSection title="Monthly Total Payments Received">
             <PaymentGraph />
           </DashboardSection>

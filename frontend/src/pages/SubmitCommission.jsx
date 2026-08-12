@@ -1,76 +1,11 @@
 import { postCommissionProof } from "@/store/slices/commissionSlice";
-import React, { useState } from "react";
+import { useId, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 
 const SubmitCommission = () => {
-  const [proof, setProof] = useState("");
-  const [amount, setAmount] = useState("");
-  const [comment, setComment] = useState("");
-
-  const proofHandler = (e) => {
-    const file = e.target.files[0];
-    setProof(file);
-  };
-
-  const dispatch = useDispatch();
-  const { loading } = useSelector((state) => state.commission);
-  const handlePaymentProof = (e) => {
-    e.preventDefault();
-    const formData = new FormData();
-    formData.append("proof", proof);
-    formData.append("amount", amount);
-    formData.append("comment", comment);
-    dispatch(postCommissionProof(formData));
-  };
-
-  return (
-    <>
-      <section className="w-full ml-0 m-0 h-fit px-5 pt-20 lg:pl-[320px] flex flex-col min-h-screen py-4 justify-start">
-        <div className="bg-white mx-auto w-full h-auto px-2 flex flex-col gap-4 items-center py-4 justify-center rounded-md">
-          <form
-            className="flex flex-col gap-5 w-full"
-            onSubmit={handlePaymentProof}
-          >
-            <h3 className={`text-[#D6482B] text-xl font-semibold mb-2 min-[480px]:text-xl md:text-2xl lg:text-3xl`}>Upload Payment Proof</h3>
-            <div className="flex flex-col gap-2">
-              <label className="text-[16px] text-stone-500">Amount</label>
-              <input
-                type="number"
-                value={amount}
-                onChange={(e) => setAmount(e.target.value)}
-                className="text-[16px] py-2 bg-transparent border-b-[1px] border-b-stone-500 focus:outline-none"
-              />
-            </div>
-            <div className="flex flex-col gap-2">
-              <label className="text-[16px] text-stone-500">
-                Payment Proof (ScreenShot)
-              </label>
-              <input
-                type="file"
-                onChange={proofHandler}
-                className="text-[16px] py-2 bg-transparent border-b-[1px] border-b-stone-500 focus:outline-none"
-              />
-            </div>
-            <div className="flex flex-col gap-2">
-              <label className="text-[16px] text-stone-500">Comment</label>
-              <textarea
-                value={comment}
-                onChange={(e) => setComment(e.target.value)}
-                rows={7}
-                className="text-[16px] py-2 bg-transparent border-[1px] rounded-md px-1 border-stone-500 focus:outline-none"
-              />
-            </div>
-              <button
-                className="bg-[#d6482b] mx-auto font-semibold hover:bg-[#b8381e] text-xl transition-all duration-300 py-2 px-4 rounded-md text-white my-4"
-                type="submit"
-              >
-                {loading ? "Uploading..." : "Upload Payment Proof"}
-              </button>
-          </form>
-        </div>
-      </section>
-    </>
-  );
+  const [proof, setProof] = useState(null); const [amount, setAmount] = useState(""); const [comment, setComment] = useState("");
+  const dispatch = useDispatch(); const { loading } = useSelector((state) => state.commission); const proofId = useId();
+  const submit = (event) => { event.preventDefault(); if (!proof) return; const data = new FormData(); data.append("proof", proof); data.append("amount", amount); data.append("comment", comment); dispatch(postCommissionProof(data)); };
+  return <section className="mx-auto min-h-screen w-full max-w-3xl px-4 py-10 sm:px-6"><div className="mb-7"><p className="text-sm font-semibold uppercase tracking-wide text-amber-700">Auctioneer workspace</p><h1 className="mt-2 text-3xl font-bold text-slate-950">Submit a payment proof</h1><p className="mt-2 text-slate-600">Upload a clear payment record for review.</p></div><form onSubmit={submit} className="rounded-xl border border-slate-200 bg-white p-5 sm:p-8"><div className="space-y-5"><div><label htmlFor="commission-amount" className="form-label">Amount paid</label><input id="commission-amount" name="amount" type="number" min="0.01" step="0.01" inputMode="decimal" value={amount} onChange={(e) => setAmount(e.target.value)} className="input-field" required /></div><div><label htmlFor={proofId} className="form-label">Payment proof</label><input id={proofId} name="proof" type="file" accept="image/png,image/jpeg,image/webp" onChange={(e) => setProof(e.target.files?.[0] || null)} className="file-input block w-full rounded-md border border-slate-300 p-2" required /><p className="mt-2 text-sm text-slate-500">PNG, JPEG, or WebP only.</p></div><div><label htmlFor="commission-comment" className="form-label">Comment</label><textarea id="commission-comment" name="comment" rows="6" value={comment} onChange={(e) => setComment(e.target.value)} className="input-field" autoComplete="off" required /></div></div><button type="submit" disabled={loading} className="mt-7 rounded-md bg-amber-700 px-5 py-3 font-semibold text-white hover:bg-amber-800 disabled:cursor-not-allowed disabled:bg-amber-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-600 focus-visible:ring-offset-2">{loading ? "Uploading…" : "Upload Payment Proof"}</button></form></section>;
 };
-
 export default SubmitCommission;

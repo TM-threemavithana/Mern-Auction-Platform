@@ -1,5 +1,4 @@
 import { deleteAuctionItem } from "@/store/slices/superAdminSlice";
-import React from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Link } from "react-router-dom";
 
@@ -7,8 +6,8 @@ const AuctionItemDelete = () => {
   const { allAuctions } = useSelector((state) => state.auction);
   const dispatch = useDispatch();
 
-  const handleAuctionDelete = (id) => {
-    dispatch(deleteAuctionItem(id));
+  const handleAuctionDelete = (id, title) => {
+    if (window.confirm(`Delete “${title}”? This cannot be undone.`)) dispatch(deleteAuctionItem(id));
   };
 
   return (
@@ -38,13 +37,13 @@ const AuctionItemDelete = () => {
                     <td className="py-2 px-4 flex space-x-2">
                       <Link
                         to={`/auction/details/${element._id}`}
-                        className="bg-blue-500 text-white py-1 px-3 rounded-md hover:bg-blue-700 transition-all duration-300"
+                        className="rounded-md bg-primary px-3 py-1 text-white transition-colors hover:bg-emerald-900"
                       >
                         View
                       </Link>
                       <button
-                        className="bg-red-500 text-white py-1 px-3 rounded-md hover:bg-red-700 transition-all duration-300"
-                        onClick={() => handleAuctionDelete(element._id)}
+                        className="rounded-md bg-red-600 px-3 py-1 text-white transition-colors hover:bg-red-700"
+                        onClick={() => handleAuctionDelete(element._id, element.title)}
                       >
                         Delete
                       </button>
@@ -53,7 +52,7 @@ const AuctionItemDelete = () => {
                 );
               })
             ) : (
-              <tr className="text-left text-xl text-sky-600 py-3">
+              <tr className="text-left text-xl text-primary py-3">
                 <td>No Auctions found.</td>
               </tr>
             )}

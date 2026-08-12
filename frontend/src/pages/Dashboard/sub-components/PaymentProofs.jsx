@@ -3,7 +3,7 @@ import {
   getSinglePaymentProofDetail,
   updatePaymentProof,
 } from "@/store/slices/superAdminSlice";
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Link } from "react-router-dom";
 
@@ -15,7 +15,7 @@ const PaymentProofs = () => {
   const dispatch = useDispatch();
 
   const handlePaymentProofDelete = (id) => {
-    dispatch(deletePaymentProof(id));
+    if (window.confirm("Delete this payment proof? This cannot be undone.")) dispatch(deletePaymentProof(id));
   };
 
   const handleFetchPaymentDetail = (id) => {
@@ -48,13 +48,13 @@ const PaymentProofs = () => {
                     <td className="py-2 px-4 text-center">{element.status}</td>
                     <td className="flex items-center py-4 justify-center gap-3">
                       <button
-                        className="bg-blue-500 text-white py-1 px-3 rounded hover:bg-blue-700 transition-all duration-300"
+                        className="rounded bg-primary px-3 py-1 text-white transition-colors hover:bg-emerald-900"
                         onClick={() => handleFetchPaymentDetail(element._id)}
                       >
                         Update
                       </button>
                       <button
-                        className="bg-red-500 text-white py-1 px-3 rounded hover:bg-red-700 transition-all duration-300"
+                        className="rounded bg-red-600 px-3 py-1 text-white transition-colors hover:bg-red-700"
                         onClick={() => handlePaymentProofDelete(element._id)}
                       >
                         Delete
@@ -64,7 +64,7 @@ const PaymentProofs = () => {
                 );
               })
             ) : (
-              <tr className="text-center text-xl text-sky-600 py-3">
+              <tr className="text-center text-xl text-primary py-3">
                 <td>No payment proofs are found.</td>
               </tr>
             )}
@@ -85,6 +85,11 @@ export const Drawer = ({ setOpenDrawer, openDrawer }) => {
   const [amount, setAmount] = useState(singlePaymentProof.amount || "");
   const [status, setStatus] = useState(singlePaymentProof.status || "");
 
+  useEffect(() => {
+    setAmount(singlePaymentProof.amount || "");
+    setStatus(singlePaymentProof.status === "Pending" ? "Approved" : singlePaymentProof.status || "");
+  }, [singlePaymentProof]);
+
   const dispatch = useDispatch();
   const handlePaymentProofUpdate = () => {
     dispatch(updatePaymentProof(singlePaymentProof._id, status, amount));
@@ -95,11 +100,11 @@ export const Drawer = ({ setOpenDrawer, openDrawer }) => {
       <section
         className={`fixed ${
           openDrawer && singlePaymentProof.userId ? "bottom-0" : "-bottom-full"
-        }  left-0 w-full transition-all duration-300 h-full bg-[#00000087] flex items-end`}
+        } left-0 flex h-full w-full items-end bg-slate-950/60 transition-transform duration-300`}
       >
-        <div className="bg-white h-fit transition-all duration-300 w-full">
+        <div className="h-fit w-full bg-white transition-transform duration-300">
           <div className="w-full px-5 py-8 sm:max-w-[640px] sm:m-auto">
-            <h3 className="text-[#D6482B]  text-3xl font-semibold text-center mb-1">
+            <h3 className="text-[#B7791F]  text-3xl font-semibold text-center mb-1">
               Update Payment Proof
             </h3>
             <p className="text-stone-600">
@@ -132,10 +137,8 @@ export const Drawer = ({ setOpenDrawer, openDrawer }) => {
                   onChange={(e) => setStatus(e.target.value)}
                   className="text-xl px-1 py-2 bg-transparent border-[1px] border-stone-600  rounded-md focus:outline-none"
                 >
-                  <option value="Pending">Pending</option>
                   <option value="Approved">Approved</option>
                   <option value="Rejected">Rejected</option>
-                  <option value="Settled">Settled</option>
                 </select>
               </div>
               <div className="flex flex-col gap-3">
@@ -151,7 +154,7 @@ export const Drawer = ({ setOpenDrawer, openDrawer }) => {
               <div>
                 <Link
                   to={singlePaymentProof.proof?.url || ""}
-                  className="bg-[#D6482B] flex justify-center w-full py-2 rounded-md text-white font-semibold text-xl transition-all duration-300 hover:bg-[#b8381e]"
+                  className="flex w-full justify-center rounded-md bg-amber-700 py-2 text-xl font-semibold text-white transition-colors hover:bg-amber-800"
                   target="_blank"
                 >
                   Payment Proof (SS)
@@ -160,7 +163,7 @@ export const Drawer = ({ setOpenDrawer, openDrawer }) => {
               <div>
                 <button
                   type="button"
-                  className="bg-blue-500 flex justify-center w-full py-2 rounded-md text-white font-semibold text-xl transition-all duration-300 hover:bg-blue-700"
+                  className="flex w-full justify-center rounded-md bg-primary py-2 text-xl font-semibold text-white transition-colors hover:bg-emerald-900"
                   onClick={handlePaymentProofUpdate}
                 >
                   {loading ? "Updating Payment Proof" : "Update Payment Proof"}
@@ -169,7 +172,7 @@ export const Drawer = ({ setOpenDrawer, openDrawer }) => {
               <div>
                 <button
                   type="button"
-                  className="bg-yellow-500 flex justify-center w-full py-2 rounded-md text-white font-semibold text-xl transition-all duration-300 hover:bg-yellow-700"
+                  className="flex w-full justify-center rounded-md bg-amber-700 py-2 text-xl font-semibold text-white transition-colors hover:bg-amber-800"
                   onClick={() => setOpenDrawer(false)}
                 >
                   Cancel

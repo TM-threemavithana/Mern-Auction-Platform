@@ -1,6 +1,6 @@
 import Spinner from "@/custom-components/Spinner";
 import { getAuctionDetail } from "@/store/slices/auctionSlice";
-import React, { useEffect } from "react";
+import { useEffect } from "react";
 import { FaGreaterThan } from "react-icons/fa";
 import { useDispatch, useSelector } from "react-redux";
 import { Link, useNavigate, useParams } from "react-router-dom";
@@ -22,22 +22,22 @@ const ViewAuctionDetails = () => {
     if (id) {
       dispatch(getAuctionDetail(id));
     }
-  }, [isAuthenticated]);
+  }, [dispatch, id, isAuthenticated, navigateTo, user.role]);
 
   return (
     <>
-      <section className="w-full ml-0 m-0 h-fit px-5 pt-20 lg:pl-[320px] flex flex-col">
+      <section className="mx-auto w-full max-w-7xl px-4 py-8 sm:px-6">
         <div className="text-[16px] flex flex-wrap gap-2 items-center">
           <Link
             to="/"
-            className="font-semibold transition-all duration-300 hover:text-[#D6482B]"
+            className="font-semibold transition-colors hover:text-amber-700"
           >
             Home
           </Link>
           <FaGreaterThan className="text-stone-400" />
           <Link
             to={"/view-my-auctions"}
-            className="font-semibold transition-all duration-300 hover:text-[#D6482B]"
+            className="font-semibold transition-colors hover:text-amber-700"
           >
             My Auctions
           </Link>
@@ -47,13 +47,16 @@ const ViewAuctionDetails = () => {
         {loading ? (
           <Spinner />
         ) : (
-          <div className="flex gap-4 flex-col 2xl:flex-row">
+          <div className="grid gap-6 lg:grid-cols-2">
             <div className="flex-1 flex flex-col gap-3">
               <div className="flex gap-4 flex-col lg:flex-row">
-                <div className="bg-white w-[100%] lg:w-40 lg:h-40 flex justify-center items-center p-5">
+                <div className="flex aspect-square w-full max-w-48 items-center justify-center rounded-lg bg-white p-5 lg:h-48">
                   <img
                     src={auctionDetail.image?.url}
-                    alt={auctionDetail.title}
+                    alt={auctionDetail.title || "Auction item"}
+                    width="192"
+                    height="192"
+                    className="h-full w-full object-contain"
                   />
                 </div>
                 <div className="flex flex-col justify-around pb-4">
@@ -62,13 +65,13 @@ const ViewAuctionDetails = () => {
                   </h3>
                   <p className="text-xl font-semibold">
                     Condition:{" "}
-                    <span className="text-[#D6482B]">
+                    <span className="text-[#B7791F]">
                       {auctionDetail.condition}
                     </span>
                   </p>
                   <p className="text-xl font-semibold">
                     Minimum Bid:{" "}
-                    <span className="text-[#D6482B]">
+                    <span className="text-[#B7791F]">
                       ${auctionDetail.startingBid}
                     </span>
                   </p>
@@ -91,7 +94,7 @@ const ViewAuctionDetails = () => {
               <header className="bg-stone-200 py-4 text-[24px] font-semibold px-4">
                 BIDS
               </header>
-              <div className="bg-white px-4 min-h-fit lg:min-h-[650px]">
+              <div className="min-h-72 rounded-b-lg bg-white px-4 lg:min-h-[650px]">
                 {auctionBidders &&
                 auctionBidders.length > 0 &&
                 new Date(auctionDetail.startTime) < Date.now() &&
@@ -114,15 +117,15 @@ const ViewAuctionDetails = () => {
                         </div>
                         <p className="flex-1 text-center">{element.amount}</p>
                         {index === 0 ? (
-                          <p className="text-[20px] font-semibold text-green-600 flex-1 text-end">
+                          <p className="text-[20px] font-semibold text-primary flex-1 text-end">
                             1st
                           </p>
                         ) : index === 1 ? (
-                          <p className="text-[20px] font-semibold text-blue-600 flex-1 text-end">
+                          <p className="text-[20px] font-semibold text-amber-700 flex-1 text-end">
                             2nd
                           </p>
                         ) : index === 2 ? (
-                          <p className="text-[20px] font-semibold text-yellow-600 flex-1 text-end">
+                          <p className="text-[20px] font-semibold text-slate-600 flex-1 text-end">
                             3rd
                           </p>
                         ) : (

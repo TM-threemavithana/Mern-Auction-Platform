@@ -23,10 +23,10 @@ const paymentProofSchema = new mongoose.Schema({
   status: {
     type: String,
     default: "Pending",
-    enum: ["Pending", "Approved", "Rejected", "Settled"],
+    enum: ["Pending", "Approved", "Processing", "Rejected", "Settled"],
   },
-  amount: Number,
-  comment: String,
+  amount: { type: Number, required: true, min: 0.01 },
+  comment: { type: String, required: true, trim: true, maxlength: 1000 },
 });
 
 export const PaymentProof = mongoose.model("PaymentProof", paymentProofSchema);

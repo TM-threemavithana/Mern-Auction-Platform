@@ -29,7 +29,7 @@ const Caption = ({ children, className }) => {
 };
 
 const CustomNavLinkList = ({ href, className, isActive, children }) => {
-  const linkStyles = "text-[17px] font-medium cursor-pointer list-none hover:text-green transition-all ease-in-out";
+  const linkStyles = "cursor-pointer list-none text-[17px] font-medium transition-colors ease-in-out hover:text-amber-700";
   const activeClass = isActive ? "text-green" : "";
 
   return (
@@ -42,8 +42,8 @@ const CustomNavLinkList = ({ href, className, isActive, children }) => {
 };
 
 const CustomNavLink = ({ href, className, isActive, children }) => {
-  const linkStyles = "text-[17px] font-medium cursor-pointer list-none hover:text-green transition-all ease-in-out";
-  const activeClass = isActive ? "bg-green_100 text-green" : "";
+  const linkStyles = "cursor-pointer list-none text-[17px] font-medium transition-colors ease-in-out hover:text-amber-700";
+  const activeClass = isActive ? "bg-amber-100 text-amber-800" : "";
 
   return (
     <>
@@ -73,7 +73,7 @@ const PrimaryButton = ({ children, className }) => {
 };
 
 const ProfileCard = ({ children, className }) => {
-  return <div className={`${className} w-12 h-12 bg-green_100 flex items-center justify-center rounded-full`}>{children}</div>;
+  return <div className={`${className} w-12 h-12 bg-amber-100 flex items-center justify-center rounded-full`}>{children}</div>;
 };
 
 const Heading = ({ title, subtitle }) => {

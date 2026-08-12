@@ -1,5 +1,5 @@
 import mongoose from "mongoose";
-import bcrypt from "bcrypt";
+import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 
 const userSchema = new mongoose.Schema({
@@ -10,11 +10,11 @@ const userSchema = new mongoose.Schema({
   },
   password: {
     type: String,
-    selected: false,
+    select: false,
     minLength: [8, "Password must contain at least 8 characters."],
   },
-  email: String,
-  address: String,
+  email: { type: String, required: true, trim: true, lowercase: true, unique: true },
+  address: { type: String, required: true, trim: true, maxlength: 300 },
   phone: {
     type: String,
     minLength: [10, "Phone Number must contain exact 10 digits."],
@@ -37,7 +37,7 @@ const userSchema = new mongoose.Schema({
       bankName: String,
     },
     frimi: {
-      frimiAccountNumber: Number,
+      frimiAccountNumber: String,
     },
     paypal: {
       paypalEmail: String,
@@ -46,18 +46,22 @@ const userSchema = new mongoose.Schema({
   role: {
     type: String,
     enum: ["Auctioneer", "Bidder", "Super Admin"],
+    required: true,
   },
   unpaidCommission: {
     type: Number,
     default: 0,
+    min: 0,
   },
   auctionsWon: {
     type: Number,
     default: 0,
+    min: 0,
   },
   moneySpent: {
     type: Number,
     default: 0,
+    min: 0,
   },
   createdAt: {
     type: Date,
@@ -66,9 +70,7 @@ const userSchema = new mongoose.Schema({
 });
 
 userSchema.pre("save", async function (next) {
-  if (!this.isModified("password")) {
-    next();
-  }
+  if (!this.isModified("password")) return next();
   this.password = await bcrypt.hash(this.password, 10);
 });
 

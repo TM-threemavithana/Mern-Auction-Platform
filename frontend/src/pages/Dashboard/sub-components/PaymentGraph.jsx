@@ -1,4 +1,3 @@
-import React from "react";
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -46,7 +45,7 @@ const PaymentGraph = () => {
       {
         label: "Total Payment Received",
         data: monthlyRevenue,
-        backgroundColor: "#D6482B",
+        backgroundColor: "#B7791F",
       },
     ],
   };

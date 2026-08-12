@@ -12,6 +12,7 @@ import commissionRouter from "./router/commissionRouter.js";
 import superAdminRouter from "./router/superAdminRoutes.js";
 import { endedAuctionCron } from "./automation/endedAuctionCron.js";
 import { verifyCommissionCron } from "./automation/verifyCommissionCorn.js";
+import { createRateLimiter } from "./middlewares/rateLimit.js";
 
 const app = express();
 config({
@@ -32,10 +33,20 @@ app.use(express.urlencoded({ extended: true }));
 app.use(
   fileUpload({
     useTempFiles: true,
-    tempFileDir: "/tmp/",
+    tempFileDir: process.env.TEMP_FILE_DIR || "/tmp/",
+    limits: { fileSize: 5 * 1024 * 1024 },
+    abortOnLimit: true,
+    safeFileNames: true,
+    preserveExtension: true,
   })
 );
 
+const authLimiter = createRateLimiter({ windowMs: 15 * 60 * 1000, max: 10, keyPrefix: "auth" });
+const bidLimiter = createRateLimiter({ windowMs: 60 * 1000, max: 30, keyPrefix: "bid" });
+
+app.use("/api/v1/user/register", authLimiter);
+app.use("/api/v1/user/login", authLimiter);
+app.use("/api/v1/bid", bidLimiter);
 app.use("/api/v1/user", userRouter);
 app.use("/api/v1/auctionitem", auctionItemRouter);
 app.use("/api/v1/bid", bidRouter);

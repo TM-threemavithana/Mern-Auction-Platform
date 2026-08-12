@@ -1,5 +1,5 @@
 import { createSlice } from "@reduxjs/toolkit";
-import axios from "axios";
+import api, { getErrorMessage } from "@/lib/api";
 import { toast } from "react-toastify";
 
 const commissionSlice = createSlice({
@@ -23,19 +23,12 @@ const commissionSlice = createSlice({
 export const postCommissionProof = (data) => async (dispatch) => {
   dispatch(commissionSlice.actions.postCommissionProofRequest());
   try {
-    const response = await axios.post(
-      "http://localhost:5000/api/v1/commission/proof",
-      data,
-      {
-        withCredentials: true,
-        headers: { "Content-Type": "multipart/form-data" },
-      }
-    );
+    const response = await api.post("/commission/proof", data);
     dispatch(commissionSlice.actions.postCommissionProofSuccess());
     toast.success(response.data.message);
   } catch (error) {
     dispatch(commissionSlice.actions.postCommissionProofFailed());
-    toast.error(error.response.data.message);
+    toast.error(getErrorMessage(error));
   }
 };
 

@@ -1,5 +1,4 @@
 import { Auction } from "../models/auctionSchema.js";
-import { User } from "../models/userSchema.js";
 import { Bid } from "../models/bidSchema.js";
 import { catchAsyncErrors } from "../middlewares/catchAsyncErrors.js";
 import ErrorHandler from "../middlewares/error.js";
@@ -38,6 +37,13 @@ export const addNewAuctionItem = catchAsyncErrors(async (req, res, next) => {
   )
    {
     return next(new ErrorHandler("Please provide all details.", 400));
+  }
+  const parsedStartingBid = Number(startingBid);
+  if (!Number.isFinite(parsedStartingBid) || parsedStartingBid <= 0 || Math.round(parsedStartingBid * 100) !== parsedStartingBid * 100) {
+    return next(new ErrorHandler("Enter a valid starting bid with up to 2 decimal places.", 400));
+  }
+  if (Number.isNaN(new Date(startTime).valueOf()) || Number.isNaN(new Date(endTime).valueOf())) {
+    return next(new ErrorHandler("Enter valid auction dates.", 400));
   }
   if (new Date(startTime) < Date.now()) {
     return next(
@@ -83,7 +89,7 @@ export const addNewAuctionItem = catchAsyncErrors(async (req, res, next) => {
       description,
       category,
       condition,
-      startingBid,
+      startingBid: parsedStartingBid,
       startTime,
       endTime,
       image: {
@@ -105,10 +111,18 @@ export const addNewAuctionItem = catchAsyncErrors(async (req, res, next) => {
 });
 
 export const getAllItems = catchAsyncErrors(async (req, res, next) => {
-  let items = await Auction.find();
+  const page = Math.max(Number.parseInt(req.query.page, 10) || 1, 1);
+  const limit = Math.min(Math.max(Number.parseInt(req.query.limit, 10) || 24, 1), 100);
+  const search = String(req.query.q || "").trim();
+  const filter = search ? { $or: [{ title: { $regex: search, $options: "i" } }, { category: { $regex: search, $options: "i" } }] } : {};
+  const [items, total] = await Promise.all([
+    Auction.find(filter).sort({ createdAt: -1 }).skip((page - 1) * limit).limit(limit),
+    Auction.countDocuments(filter),
+  ]);
   res.status(200).json({
     success: true,
     items,
+    pagination: { page, limit, total, pages: Math.ceil(total / limit) },
   });
 });
 
@@ -120,6 +134,12 @@ export const getAuctionDetails = catchAsyncErrors(async (req, res, next) => {
   const auctionItem = await Auction.findById(id);
   if (!auctionItem) {
     return next(new ErrorHandler("Auction not found.", 404));
+  }
+  if (image.size > 5 * 1024 * 1024) {
+    return next(new ErrorHandler("Auction image must be 5 MB or smaller.", 400));
+  }
+  if (auctionItem.createdBy.toString() !== req.user._id.toString() && req.user.role !== "Super Admin") {
+    return next(new ErrorHandler("You can only view your own auction details.", 403));
   }
   const bidders = auctionItem.bids.sort((a, b) => b.amount - a.amount);
   res.status(200).json({
@@ -146,6 +166,9 @@ export const removeFromAuction = catchAsyncErrors(async (req, res, next) => {
   if (!auctionItem) {
     return next(new ErrorHandler("Auction not found.", 404));
   }
+  if (auctionItem.createdBy.toString() !== req.user._id.toString()) {
+    return next(new ErrorHandler("You can only republish your own auction.", 403));
+  }
   await auctionItem.deleteOne();
   res.status(200).json({
     success: true,
@@ -162,6 +185,9 @@ export const republishItem = catchAsyncErrors(async (req, res, next) => {
   if (!auctionItem) {
     return next(new ErrorHandler("Auction not found.", 404));
   }
+  if (auctionItem.createdBy.toString() !== req.user._id.toString()) {
+    return next(new ErrorHandler("You can only republish your own auction.", 403));
+  }
   if (!req.body.startTime || !req.body.endTime) {
     return next(
       new ErrorHandler("Starttime and Endtime for republish is mandatory.")
@@ -171,6 +197,9 @@ export const republishItem = catchAsyncErrors(async (req, res, next) => {
     return next(
       new ErrorHandler("Auction is already active, cannot republish", 400)
     );
+  }
+  if (auctionItem.currentBid > 0 || auctionItem.highestBidder || auctionItem.commissionCalculated) {
+    return next(new ErrorHandler("Auctions with bids or completed settlement cannot be republished.", 400));
   }
   let data = {
     startTime: new Date(req.body.startTime),
@@ -193,13 +222,6 @@ export const republishItem = catchAsyncErrors(async (req, res, next) => {
     );
   }
 
-  if (auctionItem.highestBidder) {
-    const highestBidder = await User.findById(auctionItem.highestBidder);
-    highestBidder.moneySpent -= auctionItem.currentBid;
-    highestBidder.auctionsWon -= 1;
-    highestBidder.save();
-  }
-
   data.bids = [];
   data.commissionCalculated = false;
   data.currentBid = 0;
@@ -210,19 +232,9 @@ export const republishItem = catchAsyncErrors(async (req, res, next) => {
     useFindAndModify: false,
   });
   await Bid.deleteMany({ auctionItem: auctionItem._id });
-  const createdBy = await User.findByIdAndUpdate(
-    req.user._id,
-    { unpaidCommission: 0 },
-    {
-      new: true,
-      runValidators: false,
-      useFindAndModify: false,
-    }
-  );
   res.status(200).json({
     success: true,
     auctionItem,
     message: `Auction republished and will be active on ${req.body.startTime}`,
-    createdBy,
   });
 });

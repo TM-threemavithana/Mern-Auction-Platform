@@ -1,118 +1,19 @@
-import React from 'react';
-import PropTypes from 'prop-types';
-import { Body, Caption, Container, PrimaryButton, ProfileCard, Title } from "../router/index";
-import { IoIosSearch } from "react-icons/io";
+import { useState } from "react";
 import { AiOutlinePropertySafety } from "react-icons/ai";
-import { CiCirclePlus } from "react-icons/ci";
-export const User1 = "https://cdn-icons-png.flaticon.com/128/6997/6997662.png";
-export const User2 = "https://cdn-icons-png.flaticon.com/128/236/236832.png";
-export const User3 = "https://cdn-icons-png.flaticon.com/128/236/236831.png";
-export const User4 = "https://cdn-icons-png.flaticon.com/128/1154/1154448.png";
-import Img from "../assets/hero.webp";
-export const Hero = () => {
-  return (
-    <>
-      <section className="hero bg-primary py-8">
-        <Container className="flex items-center justify-between md:flex-row flex-col">
-          <div className="w-full md:w-1/2 text-white pr-12">
-            <Title level={3} className="text-white">
-              Build, sell & collect digital items.
-            </Title>
-            <Body className="leading-7 text-gray-200 my-8">
-              Nulla facilisi. Maecenas ac tellus ut ligula interdum convallis. Nullam dapibus on erat in dolor posuere, none hendrerit lectus ornare. Suspendisse sit amet turpina sagittis, ultrices dui et, aliquam urna.
-            </Body>
-            <SearchBox />
-            <div className="flex items-center gap-8 my-8">
-              <div>
-                <Title level={4} className="text-white">
-                  842M
-                </Title>
-                <Body className="leading-7 text-gray-200">Total Product</Body>
-              </div>
-              <div>
-                <Title level={4} className="text-white">
-                  842M
-                </Title>
-                <Body className="leading-7 text-gray-200">Total Auction</Body>
-              </div>
-              <div>
-                <Title level={4} className="text-white">
-                  54
-                </Title>
-                <Body className="leading-7 text-gray-200">Total Category</Body>
-              </div>
-            </div>
-          </div>
-          <div className="w-full md:w-1/2 my-16 relative py-16">
-            <img src={Img} alt="Hero" />
-            <div className="horiz-move absolute md:top-28 top-8 left-0">
-              <Box title="Proof of quality" desc="Lorem Ipsum Dolar Amet" />
-            </div>
-            <div className="horiz-move absolute bottom-72 right-0">
-              <Box title="Safe and secure" desc="Lorem Ipsum Dolar Amet" />
-            </div>
+import { IoIosSearch } from "react-icons/io";
+import { useNavigate } from "react-router-dom";
+import PropTypes from "prop-types";
+import heroImage from "../assets/hero.webp";
 
-            <div className="px-5 py-4 bg-white shadow-md flex items-center gap-5 rounded-xl ml-5 -mt-5 vert-move w-1/2">
-              <Title level={4}>58M Happy Client</Title>
-              <div className="flex items-center">
-                <ProfileCard className="border-2 border-white">
-                  <img src={User1} alt="User1" className="w-full h-full object-cover" />
-                </ProfileCard>
-                <ProfileCard className="border-2 border-white -ml-4">
-                  <img src={User2} alt="User2" className="w-full h-full object-cover" />
-                </ProfileCard>
-                <ProfileCard className="border-2 border-white -ml-4">
-                  <img src={User3} alt="User3" className="w-full h-full object-cover" />
-                </ProfileCard>
-                <ProfileCard className="border-2 border-white -ml-4">
-                  <img src={User4} alt="User4" className="w-full h-full object-cover" />
-                </ProfileCard>
-
-                <ProfileCard className="border-2 border-white -ml-4">
-                  <CiCirclePlus size={27} />
-                </ProfileCard>
-              </div>
-            </div>
-          </div>
-        </Container>
-      </section>
-      <div className="bg-white w-full py-16 -mt-10 rounded-t-[40px]"></div>
-    </>
-  );
+const Hero = () => {
+  const [query, setQuery] = useState("");
+  const navigate = useNavigate();
+  const search = (event) => { event.preventDefault(); const value = query.trim(); navigate(value ? `/auctions?q=${encodeURIComponent(value)}` : "/auctions"); };
+  return <section className="overflow-hidden bg-primary"><div className="mx-auto grid max-w-7xl gap-10 px-4 py-12 sm:px-6 sm:py-16 lg:grid-cols-2 lg:items-center lg:gap-14 lg:py-20"><div className="max-w-xl text-white"><p className="text-sm font-semibold uppercase tracking-[0.18em] text-amber-200">Discover your next find</p><h1 className="mt-4 text-4xl font-bold tracking-tight text-white sm:text-5xl lg:text-6xl">Bid on items worth talking about.</h1><p className="mt-5 max-w-lg text-base leading-7 text-slate-200 sm:text-lg">Explore trusted auctions, place bids with confidence, and sell your own special items on BidSpirit.</p><form onSubmit={search} className="mt-8"><label htmlFor="hero-search" className="sr-only">Search auctions</label><div className="flex flex-col gap-2 rounded-xl bg-white p-2 shadow-sm sm:flex-row"><div className="flex min-w-0 flex-1 items-center"><IoIosSearch aria-hidden="true" className="ml-3 shrink-0 text-slate-500" size={24} /><input id="hero-search" name="q" type="search" value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Search auctions…" className="min-w-0 flex-1 bg-transparent px-3 py-2 text-slate-950 placeholder:text-slate-500 focus-visible:outline-none" /></div><button type="submit" className="rounded-lg bg-amber-700 px-5 py-3 text-sm font-semibold text-white hover:bg-amber-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-300 focus-visible:ring-offset-2 focus-visible:ring-offset-[#204C41]">Search Auctions</button></div></form><dl className="mt-9 grid grid-cols-3 gap-3 border-t border-white/20 pt-6 sm:gap-6"><Stat value="842M" label="Products" /><Stat value="842M" label="Auctions" /><Stat value="54" label="Categories" /></dl></div><div className="relative mx-auto w-full max-w-xl"><img src={heroImage} alt="Collectors reviewing an auction item" width="800" height="600" fetchPriority="high" className="aspect-[4/3] w-full rounded-2xl object-cover" /><div className="mt-4 grid gap-3 sm:grid-cols-2 lg:absolute lg:-bottom-7 lg:-left-7 lg:right-7 lg:grid-cols-[1.15fr_.85fr]"><TrustCard /><ClientCard /></div></div></div><div className="h-8 rounded-t-[2rem] bg-slate-50 sm:h-12" /></section>;
 };
 
-const SearchBox = () => {
-  return (
-    <form className="">
-      <label htmlFor="default-search" className="mb-2 text-sm font-medium text-gray-800 sr-only">
-        Search
-      </label>
-      <div className="relative">
-        <div className="absolute inset-y-0 start-2 flex items-center ps-3 pointer-events-none">
-          <IoIosSearch color="black" size={25} />
-        </div>
-        <input type="search" id="default-search" className="block shadow-md w-full p-6 ps-16 text-sm text-gray-800 rounded-full bg-gray-50 outline-none" placeholder="Search product..." />
-        <PrimaryButton className="absolute end-2.5 bottom-2">Search</PrimaryButton>
-      </div>
-    </form>
-  );
-};
-
-const Box = ({ title, desc }) => {
-  return (
-    <div className="px-5 py-4 bg-white shadow-md flex items-center gap-5 rounded-xl w-auto">
-      <div className="w-14 h-14 bg-green_100 flex items-center justify-center rounded-full">
-        <AiOutlinePropertySafety size={27} className="text-primary" />
-      </div>
-      <div>
-        <Title level={4}>{title}</Title>
-        <Caption>{desc}</Caption>
-      </div>
-    </div>
-  );
-};
-
-Box.propTypes = {
-  title: PropTypes.string.isRequired,
-  desc: PropTypes.string.isRequired,
-};
+const Stat = ({ value, label }) => <div><dt className="text-xl font-bold text-white sm:text-2xl">{value}</dt><dd className="mt-1 text-xs text-slate-200 sm:text-sm">{label}</dd></div>;
+Stat.propTypes = { value: PropTypes.string.isRequired, label: PropTypes.string.isRequired };
+const TrustCard = () => <div className="flex min-w-0 items-center gap-3 rounded-xl bg-white p-4 text-slate-950 shadow-sm"><span className="grid h-11 w-11 shrink-0 place-items-center rounded-full bg-emerald-50 text-primary"><AiOutlinePropertySafety aria-hidden="true" size={24} /></span><div className="min-w-0"><p className="font-bold">Safe & secure</p><p className="mt-1 text-sm text-slate-600">Bid with confidence.</p></div></div>;
+const ClientCard = () => <div className="rounded-xl bg-white p-4 text-slate-950 shadow-sm"><p className="text-2xl font-bold">58M</p><p className="mt-1 text-sm font-semibold text-slate-600">Happy clients</p></div>;
+export { Hero };

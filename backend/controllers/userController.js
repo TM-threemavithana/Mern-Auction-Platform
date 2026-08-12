@@ -33,6 +33,12 @@ export const register = catchAsyncErrors(async (req, res, next) => {
   if (!userName || !email || !phone || !password || !address || !role) {
     return next(new ErrorHandler("Please fill full form.", 400));
   }
+  if (!['Bidder', 'Auctioneer'].includes(role)) {
+    return next(new ErrorHandler("Choose either Bidder or Auctioneer.", 400));
+  }
+  if (profileImage.size > 5 * 1024 * 1024) {
+    return next(new ErrorHandler("Profile image must be 5 MB or smaller.", 400));
+  }
   if (role === "Auctioneer") {
     if (!bankAccountName || !bankAccountNumber || !bankName) {
       return next(
@@ -133,8 +139,8 @@ export const logout = catchAsyncErrors(async (req, res, next) => {
 });
 
 export const fetchLeaderboard = catchAsyncErrors(async (req, res, next) => {
-  const users = await User.find({ moneySpent: { $gt: 0 } });
-  const leaderboard = users.sort((a, b) => b.moneySpent - a.moneySpent);
+  const limit = Math.min(Math.max(Number.parseInt(req.query.limit, 10) || 10, 1), 100);
+  const leaderboard = await User.find({ moneySpent: { $gt: 0 } }).sort({ moneySpent: -1 }).limit(limit);
   res.status(200).json({
     success: true,
     leaderboard,

@@ -7,10 +7,11 @@ import { v2 as cloudinary } from "cloudinary";
 import mongoose from "mongoose";
 
 export const calculateCommission = async (auctionId) => {
-  const auction = await Auction.findById(auctionId);
   if (!mongoose.Types.ObjectId.isValid(auctionId)) {
-    return next(new ErrorHandler("Invalid Auction Id format.", 400));
+    throw new ErrorHandler("Invalid Auction Id format.", 400);
   }
+  const auction = await Auction.findById(auctionId);
+  if (!auction) throw new ErrorHandler("Auction not found.", 404);
   const commissionRate = 0.05;
   const commission = auction.currentBid * commissionRate;
   return commission;
@@ -28,6 +29,9 @@ export const proofOfCommission = catchAsyncErrors(async (req, res, next) => {
     return next(
       new ErrorHandler("Ammount & comment are required fields.", 400)
     );
+  }
+  if (!Number.isFinite(Number(amount)) || Number(amount) <= 0) {
+    return next(new ErrorHandler("Enter a valid payment amount.", 400));
   }
 
   if (user.unpaidCommission === 0) {
@@ -49,6 +53,9 @@ export const proofOfCommission = catchAsyncErrors(async (req, res, next) => {
   const allowedFormats = ["image/png", "image/jpeg", "image/webp"];
   if (!allowedFormats.includes(proof.mimetype)) {
     return next(new ErrorHandler("ScreenShot format not supported.", 400));
+  }
+  if (proof.size > 5 * 1024 * 1024) {
+    return next(new ErrorHandler("Payment proof must be 5 MB or smaller.", 400));
   }
 
   const cloudinaryResponse = await cloudinary.uploader.upload(

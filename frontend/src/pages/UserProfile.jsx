@@ -1,5 +1,5 @@
 import Spinner from "@/custom-components/Spinner";
-import React, { useEffect } from "react";
+import { useEffect } from "react";
 import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 
@@ -11,7 +11,7 @@ const UserProfile = () => {
     if (!isAuthenticated) {
       navigateTo("/");
     }
-  }, [isAuthenticated]);
+  }, [isAuthenticated, navigateTo]);
 
   if (loading) {
     return (
@@ -30,8 +30,8 @@ const UserProfile = () => {
   }
 
   return (
-    <section className="w-full h-screen flex items-center justify-center bg-gray-100 py-10">
-      <div className="bg-white shadow-md rounded-lg w-full max-w-4xl p-6">
+    <section className="min-h-screen bg-gray-100 px-4 py-8 sm:px-6">
+      <div className="mx-auto w-full max-w-4xl rounded-lg bg-white p-4 shadow-md sm:p-6">
         <ProfileHeader user={user} />
         <PersonalDetails user={user} />
         {user.role === "Auctioneer" && <PaymentDetails user={user} />}
@@ -72,7 +72,7 @@ const PaymentDetails = ({ user }) => (
       <InputField label="Bank Name" value={user.paymentMethods.bankTransfer.bankName} />
       <InputField label="Bank Account (IBAN)" value={user.paymentMethods.bankTransfer.bankAccountNumber} />
       <InputField label="User Name On Bank Account" value={user.paymentMethods.bankTransfer.bankAccountName} />
-      <InputField label="Easypaisa Account Number" value={user.paymentMethods.easypaisa.easypaisaAccountNumber} />
+        <InputField label="Frimi Account Number" value={user.paymentMethods.frimi?.frimiAccountNumber || "Not provided"} />
       <InputField label="Paypal Email" value={user.paymentMethods.paypal.paypalEmail} />
     </div>
   </div>
@@ -101,7 +101,7 @@ const InputField = ({ label, value, type = "text" }) => (
     <input
       type={type}
       value={value}
-      className="w-full mt-1 p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-150"
+      className="w-full mt-1 p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-amber-700 transition duration-150"
       disabled
     />
   </div>

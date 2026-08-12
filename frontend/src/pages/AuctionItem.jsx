@@ -1,52 +1,45 @@
 import Spinner from "@/custom-components/Spinner";
 import { getAuctionDetail } from "@/store/slices/auctionSlice";
 import { placeBid } from "@/store/slices/bidSlice";
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { FaGreaterThan } from "react-icons/fa";
 import { RiAuctionFill } from "react-icons/ri";
 import { useDispatch, useSelector } from "react-redux";
-import { Link, useNavigate, useParams } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 
 const AuctionItem = () => {
   const { id } = useParams();
   const { loading, auctionDetail, auctionBidders } = useSelector(
     (state) => state.auction
   );
-  const { isAuthenticated } = useSelector((state) => state.user);
+  const { user } = useSelector((state) => state.user);
 
-  const navigateTo = useNavigate();
   const dispatch = useDispatch();
 
   const [amount, setAmount] = useState(0);
   const handleBid = () => {
-    const formData = new FormData();
-    formData.append("amount", amount);
-    dispatch(placeBid(id, formData));
-    dispatch(getAuctionDetail(id));
+    dispatch(placeBid(id, { amount: Number(amount) }));
   };
 
   useEffect(() => {
-    if (!isAuthenticated) {
-      navigateTo("/");
-    }
     if (id) {
       dispatch(getAuctionDetail(id));
     }
-  }, [isAuthenticated]);
+  }, [dispatch, id]);
   return (
     <>
-      <section className="w-full ml-0 m-0 h-fit px-5 pt-20 lg:pl-[320px] flex flex-col">
+      <section className="mx-auto w-full max-w-7xl px-4 py-8 sm:px-6">
         <div className="text-[16px] flex flex-wrap gap-2 items-center">
           <Link
             to="/"
-            className="font-semibold transition-all duration-300 hover:text-[#D6482B]"
+            className="font-semibold transition-colors hover:text-amber-700"
           >
             Home
           </Link>
           <FaGreaterThan className="text-stone-400" />
           <Link
             to={"/auctions"}
-            className="font-semibold transition-all duration-300 hover:text-[#D6482B]"
+            className="font-semibold transition-colors hover:text-amber-700"
           >
             Auctions
           </Link>
@@ -56,13 +49,16 @@ const AuctionItem = () => {
         {loading ? (
           <Spinner />
         ) : (
-          <div className="flex gap-4 flex-col lg:flex-row">
+          <div className="grid gap-6 lg:grid-cols-2">
             <div className="flex-1 flex flex-col gap-3">
               <div className="flex gap-4 flex-col lg:flex-row">
-                <div className="bg-white w-[100%] lg:w-40 lg:h-40 flex justify-center items-center p-5">
+                <div className="flex aspect-square w-full max-w-48 items-center justify-center rounded-lg bg-white p-5 lg:h-48">
                   <img
                     src={auctionDetail.image?.url}
-                    alt={auctionDetail.title}
+                    alt={auctionDetail.title || "Auction item"}
+                    width="192"
+                    height="192"
+                    className="h-full w-full object-contain"
                   />
                 </div>
                 <div className="flex flex-col justify-around pb-4">
@@ -71,36 +67,36 @@ const AuctionItem = () => {
                   </h3>
                   <p className="text-xl font-semibold">
                     Condition:{" "}
-                    <span className="text-[#D6482B]">
+                    <span className="text-[#B7791F]">
                       {auctionDetail.condition}
                     </span>
                   </p>
                   <p className="text-xl font-semibold">
                     Minimum Bid:{" "}
-                    <span className="text-[#D6482B]">
+                    <span className="text-[#B7791F]">
                       ${auctionDetail.startingBid}
                     </span>
                   </p>
                 </div>
               </div>
-              <p className="text-xl w-fit font-bold">
+              <h2 className="text-xl font-bold">
                 Auction Item Description
-              </p>
+              </h2>
               <hr className="my-2 border-t-[1px] border-t-stone-700" />
-              {auctionDetail.description &&
-                auctionDetail.description.split(". ").map((element, index) => {
+              <ul className="list-disc space-y-2 pl-5 text-base text-slate-700">{auctionDetail.description &&
+                auctionDetail.description.split(". ").filter(Boolean).map((element, index) => {
                   return (
                     <li key={index} className="text-[18px] my-2">
                       {element}
                     </li>
                   );
-                })}
+                })}</ul>
             </div>
             <div className="flex-1">
               <header className="bg-stone-200 py-4 text-[24px] font-semibold px-4">
                 BIDS
               </header>
-              <div className="bg-white px-4 min-h-fit lg:min-h-[650px]">
+              <div className="min-h-72 rounded-b-lg bg-white px-4 lg:min-h-[650px]">
                 {auctionBidders &&
                 new Date(auctionDetail.startTime) < Date.now() &&
                 new Date(auctionDetail.endTime) > Date.now() ? (
@@ -109,28 +105,28 @@ const AuctionItem = () => {
                       return (
                         <div
                           key={index}
-                          className="py-2 flex items-center justify-between"
+                        className="flex min-w-0 items-center justify-between gap-3 py-2"
                         >
-                          <div className="flex items-center gap-4">
+                          <div className="flex min-w-0 items-center gap-3">
                             <img
                               src={element.profileImage}
                               alt={element.userName}
                               className="w-12 h-12 rounded-full my-2 hidden md:block"
                             />
-                            <p className="text-[18px] font-semibold">
+                            <p className="truncate text-base font-semibold">
                               {element.userName}
                             </p>
                           </div>
                           {index === 0 ? (
-                            <p className="text-[20px] font-semibold text-green-600">
+                            <p className="text-[20px] font-semibold text-primary">
                               1st
                             </p>
                           ) : index === 1 ? (
-                            <p className="text-[20px] font-semibold text-blue-600">
+                            <p className="text-[20px] font-semibold text-amber-700">
                               2nd
                             </p>
                           ) : index === 2 ? (
-                            <p className="text-[20px] font-semibold text-yellow-600">
+                            <p className="text-[20px] font-semibold text-slate-600">
                               3rd
                             </p>
                           ) : (
@@ -150,37 +146,44 @@ const AuctionItem = () => {
                   <img
                     src="/notStarted.png"
                     alt="not-started"
-                    className="w-full max-h-[650px]"
+                className="h-auto w-full max-h-[650px] object-contain"
                   />
                 ) : (
                   <img
                     src="/auctionEnded.png"
                     alt="ended"
-                    className="w-full max-h-[650px]"
+                className="h-auto w-full max-h-[650px] object-contain"
                   />
                 )}
               </div>
 
-              <div className="bg-[#D6482B] py-4 text-[16px] md:text-[24px] font-semibold px-4 flex items-center justify-between">
-                {Date.now() >= new Date(auctionDetail.startTime) &&
+              <div className="flex flex-col gap-3 rounded-b-lg bg-[#B7791F] px-4 py-4 text-base font-semibold sm:flex-row sm:items-center sm:justify-between sm:text-xl">
+                {user?.role === "Bidder" && Date.now() >= new Date(auctionDetail.startTime) &&
                 Date.now() <= new Date(auctionDetail.endTime) ? (
                   <>
                     <div className="flex gap-3 flex-col sm:flex-row sm:items-center">
                       <p className="text-white">Place Bid</p>
                       <input
                         type="number"
-                        className="w-32 focus:outline-none md:text-[20px] p-1"
+                        aria-label="Bid amount"
+                        min={auctionDetail.currentBid || auctionDetail.startingBid}
+                        step="0.01"
+                        inputMode="decimal"
+                        className="w-full rounded-md border border-white bg-white p-2 text-slate-950 sm:w-36 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-950"
                         value={amount}
                         onChange={(e) => setAmount(e.target.value)}
                       />
                     </div>
                     <button
-                      className="p-4 text-white bg-black rounded-full transition-all duration-300 hover:bg-[#222]"
+                      aria-label="Place bid"
+                      className="rounded-md bg-slate-950 p-3 text-white hover:bg-slate-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white"
                       onClick={handleBid}
                     >
                       <RiAuctionFill />
                     </button>
                   </>
+                ) : user?.role !== "Bidder" ? (
+                  <p className="text-white font-semibold text-xl">Only bidders can place bids.</p>
                 ) : new Date(auctionDetail.startTime) > Date.now() ? (
                   <p className="text-white font-semibold text-xl">
                     Auction has not started yet!

@@ -1,61 +1,9 @@
-import React from "react";
 import { useSelector } from "react-redux";
 import { Link } from "react-router-dom";
 
-const Leaderboard = () => {
+const HomeLeaderboard = () => {
   const { leaderboard } = useSelector((state) => state.user);
-
-  return (
-    <section className="my-8 lg:px-5">
-      <div className="bg-white flex flex-col sm:flex-row sm:gap-2 items-center justify-center mb-4">
-        <h3 className="text-[#111] text-xl font-semibold mb-2 sm:mb-0 sm:text-2xl lg:text-3xl">
-          Top 10
-        </h3>
-        <h3 className="text-black text-xl font-semibold mb-2 sm:mb-0 sm:text-2xl lg:text-3xl">
-          Bidders Leaderboard
-        </h3>
-      </div>
-      <div className="overflow-x-auto">
-        <table className="min-w-full bg-white border my-5 border-gray-300">
-          <thead>
-            <tr>
-              <th className="py-2 px-4 text-left">Profile Pic</th>
-              <th className="py-2 px-4 text-left">Username</th>
-              <th className="py-2 px-4 text-left">Bid Expenditure</th>
-              <th className="py-2 px-4 text-left">Auctions Won</th>
-            </tr>
-          </thead>
-          <tbody className="text-gray-700">
-            {leaderboard.slice(0, 10).map((element, index) => (
-              <tr key={element._id} className="border-b border-gray-300">
-                <td className="flex gap-2 items-center py-2 px-4">
-                  <span className="text-stone-400 font-semibold text-xl w-7 hidden sm:block">
-                    {index + 1}
-                  </span>
-                  <span>
-                    <img
-                      src={element.profileImage?.url}
-                      alt={element.userName}
-                      className="h-12 w-12 object-cover rounded-full"
-                    />
-                  </span>
-                </td>
-                <td className="py-2 px-4">{element.userName}</td>
-                <td className="py-2 px-4">{element.moneySpent}</td>
-                <td className="py-2 px-4">{element.auctionsWon}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-      <Link
-        to="/leaderboard"
-        className="border-2 border-stone-200 font-bold text-xl w-full py-2 flex justify-center rounded-md hover:border-stone-500 transition-all duration-300"
-      >
-        Go to Leaderboard
-      </Link>
-    </section>
-  );
+  const bidders = leaderboard.slice(0, 10);
+  return <section aria-labelledby="home-leaderboard"><header className="flex flex-wrap items-end justify-between gap-3"><div><p className="text-sm font-semibold uppercase tracking-wide text-amber-700">Community</p><h2 id="home-leaderboard" className="mt-1 text-2xl font-bold text-slate-950 sm:text-3xl">Top Bidders</h2></div><Link to="/leaderboard" className="text-sm font-semibold text-amber-700 hover:text-amber-800">View full leaderboard</Link></header>{bidders.length ? <div className="mt-6 overflow-x-auto rounded-xl border border-slate-200 bg-white"><table className="min-w-[600px] w-full text-left"><thead className="border-b border-slate-200 bg-slate-50 text-sm text-slate-700"><tr><th scope="col" className="px-5 py-3">Rank</th><th scope="col" className="px-5 py-3">Bidder</th><th scope="col" className="px-5 py-3 text-right">Expenditure</th><th scope="col" className="px-5 py-3 text-right">Wins</th></tr></thead><tbody>{bidders.map((bidder, index) => <tr key={bidder._id} className="border-b border-slate-100 last:border-0"><td className="px-5 py-3 font-semibold text-slate-500">{index + 1}</td><td className="px-5 py-3 font-semibold text-slate-900">{bidder.userName}</td><td className="px-5 py-3 text-right tabular-nums text-slate-700">{bidder.moneySpent}</td><td className="px-5 py-3 text-right tabular-nums text-slate-700">{bidder.auctionsWon}</td></tr>)}</tbody></table></div> : <div className="mt-6 rounded-xl border border-dashed border-slate-300 bg-white px-6 py-10 text-center"><h3 className="text-lg font-semibold text-slate-950">No bidder rankings yet</h3><p className="mx-auto mt-2 max-w-lg text-sm leading-6 text-slate-600">Rankings appear once successful bids are recorded. Explore auctions to join the action.</p><Link to="/auctions" className="mt-5 inline-flex rounded-md bg-amber-700 px-4 py-2 text-sm font-semibold text-white hover:bg-amber-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-600 focus-visible:ring-offset-2">Browse Auctions</Link></div>}</section>;
 };
-
-export default Leaderboard;
+export default HomeLeaderboard;

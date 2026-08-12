@@ -1,66 +1,12 @@
 import Spinner from "@/custom-components/Spinner";
-import React from "react";
 import { useSelector } from "react-redux";
+import { Link } from "react-router-dom";
+
+const currency = new Intl.NumberFormat(undefined, { style: "currency", currency: "USD", maximumFractionDigits: 0 });
 
 const Leaderboard = () => {
   const { loading, leaderboard } = useSelector((state) => state.user);
-  return (
-    <>
-      <section className="w-full ml-0 m-0 h-fit px-5 pt-20 lg:pl-[320px] flex flex-col">
-        {loading ? (
-          <Spinner />
-        ) : (
-          <>
-            <div className="flex flex-col min-[340px]:flex-row min-[340px]:gap-2 mb-5">
-              <h1
-                className={`text-[#D6482B] text-2xl font-bold mb-2 min-[480px]:text-4xl md:text-6xl xl:text-7xl 2xl:text-8xl`}
-              >
-                Bidders Leaderboard
-              </h1>
-            </div>
-            <div className="overflow-x-auto">
-              <table className="min-w-full bg-white border my-5 border-gray-300">
-                <thead>
-                  <tr>
-                    <th className="py-2 px-4 text-left">Profile Pic</th>
-                    <th className="py-2 px-4 text-left">Username</th>
-                    <th className="py-2 px-4 text-left">Bid Expenditure</th>
-                    <th className="py-2 px-4 text-left">Auctions Won</th>
-                  </tr>
-                </thead>
-                <tbody className="text-gray-700">
-                  {leaderboard.slice(0, 100).map((element, index) => {
-                    return (
-                      <tr
-                        key={element._id}
-                        className="border-b border-gray-300"
-                      >
-                        <td className="flex gap-2 items-center py-2 px-4">
-                          <span className="text-stone-400 font-semibold text-xl w-7 hidden sm:block">
-                            {index + 1}
-                          </span>
-                          <span>
-                            <img
-                              src={element.profileImage?.url}
-                              alt={element.username}
-                              className="h-12 w-12 object-cover rounded-full"
-                            />
-                          </span>
-                        </td>
-                        <td className="py-2 px-4">{element.userName}</td>
-                        <td className="py-2 px-4">{element.moneySpent}</td>
-                        <td className="py-2 px-4">{element.auctionsWon}</td>
-                      </tr>
-                    );
-                  })}
-                </tbody>
-              </table>
-            </div>
-          </>
-        )}
-      </section>
-    </>
-  );
+  if (loading) return <Spinner />;
+  return <main className="mx-auto min-h-[calc(100vh-16rem)] w-full max-w-7xl px-4 py-10 sm:px-6 lg:py-14"><Link to="/" className="inline-flex text-sm font-semibold text-amber-700 hover:text-amber-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-600">← Back to home</Link><header className="mt-5"><p className="text-sm font-semibold uppercase tracking-wide text-amber-700">Top bidders</p><h1 className="mt-1 text-3xl font-bold tracking-tight text-slate-950 sm:text-4xl">Bidders Leaderboard</h1><p className="mt-2 max-w-2xl text-slate-600">See the bidders with the highest successful auction expenditure.</p></header>{leaderboard.length ? <div className="mt-8 overflow-x-auto rounded-xl border border-slate-200 bg-white"><table className="min-w-[640px] w-full text-left"><thead className="border-b border-slate-200 bg-slate-50 text-sm text-slate-700"><tr><th scope="col" className="px-5 py-3 font-semibold">Rank</th><th scope="col" className="px-5 py-3 font-semibold">Bidder</th><th scope="col" className="px-5 py-3 text-right font-semibold">Bid Expenditure</th><th scope="col" className="px-5 py-3 text-right font-semibold">Auctions Won</th></tr></thead><tbody>{leaderboard.slice(0, 100).map((bidder, index) => <tr key={bidder._id} className="border-b border-slate-100 last:border-0 hover:bg-amber-50"><td className="px-5 py-3 font-semibold text-slate-500">{index + 1}</td><td className="px-5 py-3"><div className="flex min-w-0 items-center gap-3"><img src={bidder.profileImage?.url} alt="" width="40" height="40" loading="lazy" className="h-10 w-10 shrink-0 rounded-full object-cover" /><span className="truncate font-semibold text-slate-900">{bidder.userName}</span></div></td><td className="px-5 py-3 text-right font-medium tabular-nums text-slate-700">{currency.format(bidder.moneySpent || 0)}</td><td className="px-5 py-3 text-right tabular-nums text-slate-700">{bidder.auctionsWon || 0}</td></tr>)}</tbody></table></div> : <section className="mt-8 rounded-xl border border-dashed border-slate-300 bg-white px-6 py-12 text-center sm:px-10"><h2 className="text-xl font-bold text-slate-950">The leaderboard is waiting for its first bids</h2><p className="mx-auto mt-3 max-w-lg text-sm leading-6 text-slate-600">Successful bids will appear here after auctions close. Browse current listings to start participating.</p><div className="mt-6 flex flex-wrap justify-center gap-3"><Link to="/auctions" className="rounded-md bg-amber-700 px-4 py-2 text-sm font-semibold text-white hover:bg-amber-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-600 focus-visible:ring-offset-2">Browse Auctions</Link><Link to="/" className="rounded-md border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-700 hover:border-amber-300 hover:text-amber-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-600">Back to Home</Link></div></section>}</main>;
 };
-
 export default Leaderboard;

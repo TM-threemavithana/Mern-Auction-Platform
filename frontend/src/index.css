@@ -8,13 +8,14 @@
 
 @layer base {
   :root {
+    color-scheme: light;
     --background: 0 0% 100%;
     --foreground: 222.2 84% 4.9%;
     --card: 0 0% 100%;
     --card-foreground: 222.2 84% 4.9%;
     --popover: 0 0% 100%;
     --popover-foreground: 222.2 84% 4.9%;
-    --primary: 222.2 47.4% 11.2%;
+    --primary: 165 54% 19%;
     --primary-foreground: 210 40% 98%;
     --secondary: 210 40% 96.1%;
     --secondary-foreground: 222.2 47.4% 11.2%;
@@ -26,7 +27,7 @@
     --destructive-foreground: 210 40% 98%;
     --border: 214.3 31.8% 91.4%;
     --input: 214.3 31.8% 91.4%;
-    --ring: 222.2 84% 4.9%;
+    --ring: 38 57% 42%;
     --radius: 0.5rem;
     --chart-1: 12 76% 61%;
     --chart-2: 173 58% 39%;
@@ -69,7 +70,7 @@
   }
   body {
     @apply bg-background text-foreground;
-    background: linear-gradient(86deg, rgba(246, 244, 240), #f6f4f0);
+    background: #f7f8f7;
     overflow-x: hidden;
     font-family: "Inter", sans-serif;
     font-optical-sizing: auto;
@@ -80,9 +81,16 @@
   }
 }
  .input-field {
-     @apply w-full py-2 bg-transparent border-b-2 border-stone-300 focus:outline-none focus:border-[#d6482b];
+     @apply w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-slate-900 placeholder:text-slate-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-700 focus-visible:ring-offset-1;
    }
   
-   .file-input {
-     @apply file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-[#d6482b] file:text-white hover:file:bg-[#b8381e];
+  .file-input {
+     @apply file:mr-4 file:rounded-md file:border-0 file:bg-amber-700 file:px-4 file:py-2 file:text-sm file:font-semibold file:text-white hover:file:bg-amber-800;
   }
+  img, video, canvas, svg { max-width: 100%; }
+  input, select, textarea, button { font: inherit; }
+  table { border-collapse: collapse; }
+  .form-label { @apply mb-1.5 block text-sm font-semibold text-slate-700; }
+  .skip-link { @apply sr-only fixed left-4 top-4 z-[100] rounded bg-slate-900 px-4 py-2 text-white focus:not-sr-only focus:outline-none focus:ring-2 focus:ring-amber-400; }
+  .responsive-table { @apply overflow-x-auto rounded-lg border border-slate-200; }
+  @media (prefers-reduced-motion: reduce) { *, ::before, ::after { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; scroll-behavior: auto !important; transition-duration: 0.01ms !important; } }

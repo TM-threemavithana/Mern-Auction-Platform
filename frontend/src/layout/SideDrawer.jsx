@@ -1,141 +1,63 @@
-import React, { useState, useEffect } from "react";
-import { MdDashboard } from "react-icons/md";
-import { FaUserCircle, FaFileInvoiceDollar, FaEye } from "react-icons/fa";
+import { useState } from "react";
+import { FaUserCircle } from "react-icons/fa";
 import { GiHamburgerMenu } from "react-icons/gi";
-import { IoMdCloseCircleOutline, IoIosCreate } from "react-icons/io";
+import { IoMdClose } from "react-icons/io";
 import { useDispatch, useSelector } from "react-redux";
 import { logout } from "@/store/slices/userSlice";
-import { Link } from "react-router-dom";
-import Img1 from "../assets/logo.png";
+import { Link, NavLink } from "react-router-dom";
+import logo from "../assets/logo.png";
 import SearchBar from "./SearchBar";
 
+const baseLink = "rounded-md px-3 py-2 text-sm font-semibold text-slate-700 transition-colors hover:bg-amber-50 hover:text-amber-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-600";
+const navLinkClass = ({ isActive }) => `${baseLink} ${isActive ? "bg-amber-50 text-amber-700" : ""}`;
+
 const Navbar = () => {
-  const [show, setShow] = useState(false);
-  const [scrolled, setScrolled] = useState(false);
+  const [open, setOpen] = useState(false);
   const { isAuthenticated, user } = useSelector((state) => state.user);
   const dispatch = useDispatch();
+  const closeMenu = () => setOpen(false);
 
-  const handleLogout = () => {
-    dispatch(logout());
-  };
-
-  useEffect(() => {
-    const handleScroll = () => {
-      setScrolled(window.scrollY > 50);
-    };
-
-    window.addEventListener("scroll", handleScroll);
-    return () => {
-      window.removeEventListener("scroll", handleScroll);
-    };
-  }, []);
+  const links = [
+    ["/auctions", "Auctions"],
+    ["/leaderboard", "Leaderboard"],
+    ["/how-it-works-info", "How It Works"],
+    ["/about", "About"],
+    ["/contact", "Contact"],
+  ];
+  if (user?.role === "Auctioneer") links.splice(2, 0, ["/create-auction", "Create Auction"], ["/view-my-auctions", "My Auctions"]);
+  if (user?.role === "Super Admin") links.splice(2, 0, ["/dashboard", "Dashboard"]);
 
   return (
-    <nav className={`fixed w-full z-50 transition-all ${scrolled ? "bg-white shadow-lg" : "bg-[#5A8A80]"}`}>
-      <div className="flex justify-between items-center p-4">
-        <Link to="/" className="flex items-center">
-          <img src={Img1} alt="Bid Spirit" className="h-10" />
+    <header className="sticky top-0 z-50 border-b border-slate-200 bg-white/95 backdrop-blur">
+      <nav aria-label="Main navigation" className="mx-auto flex min-h-16 max-w-7xl items-center gap-3 px-4 sm:px-6">
+        <Link to="/" onClick={closeMenu} className="flex shrink-0 items-center rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-600">
+          <img src={logo} alt="BidSpirit" width="246" height="78" className="h-8 w-auto sm:h-9" fetchPriority="high" />
         </Link>
         <SearchBar />
-        <div className="lg:flex hidden space-x-6 items-center">
-          <NavLink to="/auctions">Auctions</NavLink>
-          <NavLink to="/leaderboard">Leaderboard</NavLink>
-          {isAuthenticated && user.role === "Auctioneer" && (
-            <>
-              <NavLink to="/submit-commission">
-                 Submit Commission
-              </NavLink>
-              <NavLink to="/create-auction">
-                 Create Auction
-              </NavLink>
-              <NavLink to="/view-my-auctions">
-                 View My Auctions
-              </NavLink>
-            </>
-          )}
-          <NavLink to="/how-it-works-info">How it works</NavLink>
-          <NavLink to="/about">About Us</NavLink>
+        <div className="ml-auto hidden items-center gap-1 lg:flex">
+          {links.map(([to, label]) => <NavLink key={to} to={to} className={navLinkClass}>{label}</NavLink>)}
         </div>
-        <div className="flex space-x-4">
-          {isAuthenticated && user.role === "Super Admin" && (
-            <NavLink to="/dashboard">
-              <MdDashboard className="mr-2" /> Dashboard
-            </NavLink>
-          )}
-          {isAuthenticated && (
-            <NavLink to="/me">
-              <FaUserCircle className="mr-2" /> Profile
-            </NavLink>
-          )}
+        <div className="ml-auto hidden items-center gap-2 lg:flex">
+          {isAuthenticated ? <>
+            <NavLink to="/me" aria-label="Open profile" className={navLinkClass}><FaUserCircle aria-hidden="true" className="text-lg" /></NavLink>
+            <button type="button" onClick={() => dispatch(logout())} className="rounded-md bg-amber-700 px-4 py-2 text-sm font-semibold text-white hover:bg-amber-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-600 focus-visible:ring-offset-2">Log Out</button>
+          </> : <>
+            <Link to="/login" className={baseLink}>Log In</Link>
+            <Link to="/sign-up" className="rounded-md bg-amber-700 px-4 py-2 text-sm font-semibold text-white hover:bg-amber-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-600 focus-visible:ring-offset-2">Create Account</Link>
+          </>}
         </div>
-        <div className="lg:hidden text-3xl text-[#D6482B]" onClick={() => setShow(!show)}>
-          <GiHamburgerMenu />
+        <button type="button" aria-expanded={open} aria-controls="mobile-navigation" aria-label={open ? "Close navigation menu" : "Open navigation menu"} onClick={() => setOpen((value) => !value)} className="ml-auto grid h-10 w-10 place-items-center rounded-md text-slate-700 hover:bg-slate-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-600 lg:hidden">
+          {open ? <IoMdClose aria-hidden="true" className="text-2xl" /> : <GiHamburgerMenu aria-hidden="true" className="text-xl" />}
+        </button>
+      </nav>
+      {open && <div id="mobile-navigation" className="border-t border-slate-200 bg-white px-4 py-3 lg:hidden">
+        <div className="flex flex-col gap-1">
+          {links.map(([to, label]) => <NavLink key={to} to={to} onClick={closeMenu} className={navLinkClass}>{label}</NavLink>)}
+          {isAuthenticated ? <><NavLink to="/me" onClick={closeMenu} className={navLinkClass}>Profile</NavLink><button type="button" onClick={() => { closeMenu(); dispatch(logout()); }} className="mt-2 rounded-md bg-amber-700 px-4 py-2 text-left text-sm font-semibold text-white hover:bg-amber-800">Log Out</button></> : <><Link to="/login" onClick={closeMenu} className={baseLink}>Log In</Link><Link to="/sign-up" onClick={closeMenu} className="rounded-md bg-amber-700 px-4 py-2 text-sm font-semibold text-white">Create Account</Link></>}
         </div>
-        <div className="hidden lg:flex items-center space-x-4">
-          {!isAuthenticated ? (
-            <>
-              <Link to="/sign-up" className="bg-[#D6482B] text-white px-4 py-2 rounded-md hover:bg-[#b8381e]">
-                Sign Up
-              </Link>
-              <Link to="/login" className="border border-[#DECCBE] text-[#DECCBE] px-4 py-2 rounded-md hover:bg-[#fffefd] hover:text-[#fdba88]">
-                Login
-              </Link>
-            </>
-          ) : (
-            <button onClick={handleLogout} className="bg-[#D6482B] text-white px-4 py-2 rounded-md hover:bg-[#b8381e]">
-              Logout
-            </button>
-          )}
-        </div>
-      </div>
-      {show && (
-        <div className="lg:hidden bg-[#f6f4f0] p-4 border-t border-gray-300">
-          <IoMdCloseCircleOutline onClick={() => setShow(false)} className="text-2xl text-[#D6482B] cursor-pointer mb-4" />
-          <ul className="space-y-3">
-            <MobileNavLink to="/auctions">AUCTIONS</MobileNavLink>
-            <MobileNavLink to="/leaderboard">LEADERBOARD</MobileNavLink>
-            {isAuthenticated && user.role === "Auctioneer" && (
-              <>
-                <MobileNavLink to="/submit-commission">
-                  <FaFileInvoiceDollar /> Submit Commission
-                </MobileNavLink>
-                <MobileNavLink to="/create-auction">
-                  <IoIosCreate /> Create Auction
-                </MobileNavLink>
-                <MobileNavLink to="/view-my-auctions">
-                  <FaEye /> View My Auctions
-                </MobileNavLink>
-              </>
-            )}
-            {isAuthenticated && user.role === "Super Admin" && (
-              <MobileNavLink to="/dashboard">
-                <MdDashboard /> Dashboard
-              </MobileNavLink>
-            )}
-            <MobileNavLink to="/how-it-works-info">HOW IT WORKS</MobileNavLink>
-            <MobileNavLink to="/about">ABOUT US</MobileNavLink>
-            {isAuthenticated && (
-              <MobileNavLink to="/me">PROFILE</MobileNavLink>
-            )}
-          </ul>
-        </div>
-      )}
-    </nav>
+      </div>}
+    </header>
   );
 };
-
-const NavLink = ({ to, children }) => (
-  <Link to={to} className="text-xl font-semibold hover:text-[#D6482b] transition-colors">
-    {children}
-  </Link>
-);
-
-const MobileNavLink = ({ to, children }) => (
-  <li>
-    <Link to={to} className="text-xl font-semibold hover:text-[#D6482b] transition-colors">
-      {children}
-    </Link>
-  </li>
-);
 
 export default Navbar;

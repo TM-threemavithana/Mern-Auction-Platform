@@ -8,11 +8,13 @@ import { Hero } from "./Hero.jsx";
 
 const Home = () => {
   return (
-    <div>
+    <div className="bg-slate-50">
       <Hero />
-      <FeaturedAuctions />
-      <UpcomingAuctions />
-      <Leaderboard />
+      <main className="mx-auto max-w-7xl space-y-12 px-4 py-10 sm:px-6 lg:py-14">
+        <FeaturedAuctions />
+        <UpcomingAuctions />
+        <Leaderboard />
+      </main>
     </div>
   );
 };

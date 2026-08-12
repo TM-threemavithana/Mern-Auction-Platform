@@ -1,4 +1,3 @@
-import React from "react";
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -47,13 +46,13 @@ const BiddersAuctioneersGraph = () => {
       {
         label: "Number of Bidders",
         data: totalBidders,
-        borderColor: "#D6482B",
+        borderColor: "#B7791F",
         fill: false,
       },
       {
         label: "Number of Auctioneers",
         data: totalAuctioneers,
-        borderColor: "#fdba88",
+        borderColor: "#d9a441",
         fill: false,
       },
     ],

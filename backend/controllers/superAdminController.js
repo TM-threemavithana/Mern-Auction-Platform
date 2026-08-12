@@ -51,15 +51,26 @@ export const updateProofStatus = catchAsyncErrors(async (req, res, next) => {
   if (!proof) {
     return next(new ErrorHandler("Payment proof not found.", 404));
   }
-  proof = await PaymentProof.findByIdAndUpdate(
-    id,
-    { status, amount },
+  if (!["Approved", "Rejected"].includes(status)) {
+    return next(new ErrorHandler("Proof status must be Approved or Rejected.", 400));
+  }
+  const parsedAmount = Number(amount);
+  if (!Number.isFinite(parsedAmount) || parsedAmount <= 0) {
+    return next(new ErrorHandler("Enter a valid approved amount.", 400));
+  }
+  if (proof.status !== "Pending") {
+    return next(new ErrorHandler("Only pending proofs can be reviewed.", 409));
+  }
+  proof = await PaymentProof.findOneAndUpdate(
+    { _id: id, status: "Pending" },
+    { status, amount: parsedAmount },
     {
       new: true,
       runValidators: true,
       useFindAndModify: false,
     }
   );
+  if (!proof) return next(new ErrorHandler("This proof was already reviewed.", 409));
   res.status(200).json({
     success: true,
     message: "Payment proof amount and status updated.",
@@ -86,7 +97,7 @@ export const fetchAllUsers = catchAsyncErrors(async (req, res, next) => {
       $group: {
         _id: {
           month: { $month: "$createdAt" },
-          year: { $month: "$createdAt" },
+          year: { $year: "$createdAt" },
           role: "$role",
         },
         count: { $sum: 1 },
