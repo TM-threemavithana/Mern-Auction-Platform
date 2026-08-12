@@ -16,6 +16,9 @@ export const addNewAuctionItem = catchAsyncErrors(async (req, res, next) => {
   if (!allowedFormats.includes(image.mimetype)) {
     return next(new ErrorHandler("File format not supported.", 400));
   }
+  if (image.size > 5 * 1024 * 1024) {
+    return next(new ErrorHandler("Auction image must be 5 MB or smaller.", 400));
+  }
 
   const {
     title,
@@ -134,9 +137,6 @@ export const getAuctionDetails = catchAsyncErrors(async (req, res, next) => {
   const auctionItem = await Auction.findById(id);
   if (!auctionItem) {
     return next(new ErrorHandler("Auction not found.", 404));
-  }
-  if (image.size > 5 * 1024 * 1024) {
-    return next(new ErrorHandler("Auction image must be 5 MB or smaller.", 400));
   }
   if (auctionItem.createdBy.toString() !== req.user._id.toString() && req.user.role !== "Super Admin") {
     return next(new ErrorHandler("You can only view your own auction details.", 403));
