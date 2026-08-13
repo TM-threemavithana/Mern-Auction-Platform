@@ -6,6 +6,10 @@ import { catchAsyncErrors } from "../middlewares/catchAsyncErrors.js";
 import ErrorHandler from "../middlewares/error.js";
 
 const toMoney = (amount) => Math.round(Number(amount) * 100) / 100;
+const requireMockProvider = (next) => {
+  if ((process.env.PAYMENT_PROVIDER || "mock") !== "mock") { next(new ErrorHandler("Mock payment operations are disabled outside demo mode.", 503)); return false; }
+  return true;
+};
 const paymentView = (payment) => payment.populate([
   { path: "auction", select: "title image endTime" },
   { path: "buyer", select: "userName email" },
@@ -39,6 +43,7 @@ export const getPayment = catchAsyncErrors(async (req, res, next) => {
 });
 
 export const startCheckout = catchAsyncErrors(async (req, res, next) => {
+  if (!requireMockProvider(next)) return;
   if (!mongoose.Types.ObjectId.isValid(req.params.auctionId)) return next(new ErrorHandler("Invalid auction ID.", 400));
   const auction = await Auction.findById(req.params.auctionId);
   if (!auction) return next(new ErrorHandler("Auction not found.", 404));
@@ -50,6 +55,7 @@ export const startCheckout = catchAsyncErrors(async (req, res, next) => {
 });
 
 export const completeMockPayment = catchAsyncErrors(async (req, res, next) => {
+  if (!requireMockProvider(next)) return;
   const payment = await Payment.findOneAndUpdate(
     { _id: req.params.id, buyer: req.user._id, status: "awaiting_payment" },
     { $set: { status: "payout_pending", paidAt: new Date(), providerReference: `MOCK-${crypto.randomUUID()}` } },
@@ -82,6 +88,7 @@ export const getAdminPayments = catchAsyncErrors(async (req, res) => {
 });
 
 export const resolveAdminPayment = catchAsyncErrors(async (req, res, next) => {
+  if (!requireMockProvider(next)) return;
   const action = req.body.action;
   const transitions = {
     release_payout: { from: ["payout_pending"], to: "payout_released", date: "payoutReleasedAt" },

@@ -23,7 +23,8 @@ export const placeBid = catchAsyncErrors(async (req, res, next) => {
 
   const auctionBeforeBid = await Auction.findById(id).select("currentBid startingBid bidIncrement endTime antiSnipingMinutes");
   if (!auctionBeforeBid) return next(new ErrorHandler("Auction item not found.", 404));
-  const minimumBid = (auctionBeforeBid.currentBid || auctionBeforeBid.startingBid) + (auctionBeforeBid.currentBid ? auctionBeforeBid.bidIncrement : 0);
+  const increment = Number(auctionBeforeBid.bidIncrement || 100);
+  const minimumBid = (auctionBeforeBid.currentBid || auctionBeforeBid.startingBid) + (auctionBeforeBid.currentBid ? increment : 0);
   if (amount < minimumBid) return next(new ErrorHandler(`Minimum allowed bid is ${minimumBid}.`, 400));
   const bidEntry = {
     userId: bidder._id,
@@ -42,7 +43,7 @@ export const placeBid = catchAsyncErrors(async (req, res, next) => {
       endTime: { $gte: now },
       $expr: {
         $and: [
-          { $gte: [amount, { $cond: [{ $gt: ["$currentBid", 0] }, { $add: ["$currentBid", "$bidIncrement"] }, "$startingBid"] }] },
+          { $gte: [amount, { $cond: [{ $gt: ["$currentBid", 0] }, { $add: ["$currentBid", { $ifNull: ["$bidIncrement", 100] }] }, "$startingBid"] }] },
         ],
       },
     },

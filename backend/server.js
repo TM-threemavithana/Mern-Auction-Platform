@@ -1,7 +1,6 @@
 import app from "./app.js";
 import cloudinary from "cloudinary";
 import { connection } from "./database/connection.js";
-import { endedAuctionCron } from "./automation/endedAuctionCron.js";
 import { verifyCommissionCron } from "./automation/verifyCommissionCorn.js";
 import { validateEnvironment } from "./utils/environment.js";
 
@@ -14,7 +13,6 @@ cloudinary.v2.config({
 const start = async () => {
   validateEnvironment();
   await connection();
-  endedAuctionCron();
   verifyCommissionCron();
   const server = app.listen(process.env.PORT || 5000, () => console.log(`Server listening on port ${process.env.PORT || 5000}`));
   const shutdown = (signal) => {

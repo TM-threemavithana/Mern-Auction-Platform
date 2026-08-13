@@ -33,6 +33,8 @@ export const addNewAuctionItem = catchAsyncErrors(async (req, res, next) => {
     reservePrice,
     conditionReport,
     deliveryOptions,
+    bidIncrement,
+    antiSnipingMinutes,
   } = req.body;
   if (
     !title ||
@@ -56,6 +58,9 @@ export const addNewAuctionItem = catchAsyncErrors(async (req, res, next) => {
   const parsedEstimateLow = estimateLow === "" || estimateLow === undefined ? undefined : Number(estimateLow);
   const parsedEstimateHigh = estimateHigh === "" || estimateHigh === undefined ? undefined : Number(estimateHigh);
   const parsedReservePrice = reservePrice === "" || reservePrice === undefined ? undefined : Number(reservePrice);
+  const parsedBidIncrement = bidIncrement === "" || bidIncrement === undefined ? 100 : Number(bidIncrement);
+  const parsedAntiSnipingMinutes = antiSnipingMinutes === "" || antiSnipingMinutes === undefined ? 2 : Number(antiSnipingMinutes);
+  if (!Number.isFinite(parsedBidIncrement) || parsedBidIncrement <= 0 || !Number.isInteger(parsedAntiSnipingMinutes) || parsedAntiSnipingMinutes < 0 || parsedAntiSnipingMinutes > 30) return next(new ErrorHandler("Check bid increment and anti-sniping settings.", 400));
   if ((parsedEstimateLow !== undefined && (!Number.isFinite(parsedEstimateLow) || parsedEstimateLow < 0)) || (parsedEstimateHigh !== undefined && (!Number.isFinite(parsedEstimateHigh) || parsedEstimateHigh < parsedEstimateLow)) || (parsedReservePrice !== undefined && (!Number.isFinite(parsedReservePrice) || parsedReservePrice < parsedStartingBid))) return next(new ErrorHandler("Check your estimate and reserve values.", 400));
   if (new Date(startTime) < Date.now()) {
     return next(
@@ -107,6 +112,8 @@ export const addNewAuctionItem = catchAsyncErrors(async (req, res, next) => {
       reservePrice: parsedReservePrice,
       conditionReport,
       deliveryOptions: Array.isArray(deliveryOptions) ? deliveryOptions : String(deliveryOptions || "pickup").split(",").filter(Boolean),
+      bidIncrement: parsedBidIncrement,
+      antiSnipingMinutes: parsedAntiSnipingMinutes,
       startTime,
       endTime,
       image: {

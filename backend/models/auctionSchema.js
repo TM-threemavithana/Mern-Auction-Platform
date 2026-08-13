@@ -54,6 +54,10 @@ const auctionSchema = new mongoose.Schema({
     type: Boolean,
     default: false,
   },
+  settlementStatus: { type: String, enum: ["pending", "processing", "settled", "no_sale"], default: "pending", index: true },
+  settlementLockId: { type: String, select: false },
+  settlementLockExpiresAt: { type: Date, select: false },
+  settledAt: Date,
   createdAt: {
     type: Date,
     default: Date.now,

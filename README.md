@@ -165,6 +165,19 @@ The included payment centre is intentionally a **mock gateway** for product demo
 
 Set `PAYMENT_PROVIDER=mock` until a merchant account and signed provider integration are available. A real Sri Lankan gateway integration requires merchant approval, provider-issued credentials, public webhook URLs, and legal review of marketplace settlement and disputes.
 
+## Auction settlement worker
+
+The API process does not settle auctions. Run one or more dedicated worker processes instead:
+
+```powershell
+Set-Location backend
+npm run worker
+```
+
+Each worker takes a short-lived MongoDB lease before processing ended auctions. It then claims each auction and performs the winner totals, payment creation, and final settlement state in one MongoDB transaction. This prevents duplicate settlement when the worker is restarted or more than one worker is deployed.
+
+MongoDB transactions require a replica set. Use MongoDB Atlas or a self-managed replica set in every environment that runs settlement; a standalone local MongoDB instance is not sufficient.
+
 ## Quality checks
 
 Run these checks before every release:
@@ -183,6 +196,10 @@ npm audit --omit=dev --audit-level=high
 ```
 
 The GitHub Actions workflow runs these checks for pull requests and pushes to `main`.
+
+### MongoDB integration tests
+
+`npm test` includes MongoDB-backed settlement integration tests. The first run downloads a temporary MongoDB binary into `backend/.mongodb-binaries/` and starts a single-node replica set, which is required to verify transactions and worker leases. CI runners must permit downloads from `fastdl.mongodb.org`, or provide a pre-cached MongoDB binary through the `mongodb-memory-server` configuration.
 
 ## Docker
 
@@ -212,7 +229,8 @@ For a single-domain deployment, configure your reverse proxy to route `/api/v1` 
 - [ ] Configure Cloudinary upload restrictions and SMTP credentials.
 - [ ] Monitor `/healthz` and `/readyz`.
 - [ ] Run the quality checks and dependency audit in CI before deploys.
-- [ ] Deploy the backend as a single scheduled-worker instance, or move scheduled jobs to a dedicated worker service.
+- [ ] Deploy the API separately from one or more `npm run worker` worker instances; never start the worker from the API process.
+- [ ] Use MongoDB Atlas or another replica-set deployment so settlement transactions are available.
 
 ## License
 

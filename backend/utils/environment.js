@@ -6,4 +6,7 @@ export const validateEnvironment = () => {
   if (process.env.NODE_ENV === "production" && process.env.JWT_SECRET_KEY.length < 32) {
     throw new Error("JWT_SECRET_KEY must be at least 32 characters in production.");
   }
+  if (process.env.NODE_ENV === "production" && (!process.env.PAYMENT_PROVIDER || process.env.PAYMENT_PROVIDER === "mock")) {
+    throw new Error("Production requires a configured non-mock payment provider.");
+  }
 };

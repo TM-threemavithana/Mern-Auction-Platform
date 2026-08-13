@@ -7,6 +7,7 @@ import { logout } from "@/store/slices/userSlice";
 import { Link, NavLink } from "react-router-dom";
 import logo from "../assets/logo.png";
 import SearchBar from "./SearchBar";
+import { isDemoMode } from "@/config/runtime";
 
 const baseLink = "rounded-md px-3 py-2 text-sm font-semibold text-slate-700 transition-colors hover:bg-amber-50 hover:text-amber-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-600";
 const navLinkClass = ({ isActive }) => `${baseLink} ${isActive ? "bg-amber-50 text-amber-700" : ""}`;
@@ -26,7 +27,7 @@ const Navbar = () => {
   ];
   if (user?.role === "Auctioneer") links.splice(2, 0, ["/create-auction", "Create Auction"], ["/view-my-auctions", "My Auctions"], ["/request-valuation", "Request Valuation"]);
   if (user?.role === "Bidder") links.splice(2, 0, ["/payments", "My Payments"], ["/watchlist", "Saved Lots"]);
-  links.splice(2, 0, ["/auction-services", "Demo Services"]);
+  if (isDemoMode) links.splice(2, 0, ["/auction-services", "Demo Services"]);
   if (user?.role === "Super Admin") links.splice(2, 0, ["/dashboard", "Dashboard"], ["/staff-operations", "Staff Operations"]);
 
   return (

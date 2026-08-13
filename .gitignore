@@ -11,3 +11,4 @@ logs
 # Optional: Ignore other OS/system-specific files
 .DS_Store
 Thumbs.db
+backend/.mongodb-binaries/

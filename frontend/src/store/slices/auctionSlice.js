@@ -2,6 +2,7 @@ import { createSlice } from "@reduxjs/toolkit";
 import api, { getErrorMessage } from "@/lib/api";
 import { toast } from "react-toastify";
 import { demoAuctions } from "@/data/demoAuctions";
+import { isDemoMode } from "@/config/runtime";
 
 const auctionSlice = createSlice({
   name: "auction",
@@ -13,6 +14,7 @@ const auctionSlice = createSlice({
     myAuctions: [],
     allAuctions: [],
     usingDemoData: false,
+    apiUnavailable: false,
   },
   reducers: {
     createAuctionRequest(state, action) {
@@ -31,11 +33,13 @@ const auctionSlice = createSlice({
       state.loading = false;
       state.allAuctions = action.payload;
       state.usingDemoData = false;
+      state.apiUnavailable = false;
     },
     getAllAuctionItemFailed(state, action) {
       state.loading = false;
-      state.allAuctions = demoAuctions;
-      state.usingDemoData = true;
+      state.allAuctions = isDemoMode ? demoAuctions : [];
+      state.usingDemoData = isDemoMode;
+      state.apiUnavailable = !isDemoMode;
     },
     getAuctionDetailRequest(state, action) {
       state.loading = true;
@@ -120,7 +124,7 @@ export const getAuctionDetail = (id) => async (dispatch) => {
     dispatch(auctionSlice.actions.getAuctionDetailSuccess(response.data));
     dispatch(auctionSlice.actions.resetSlice());
   } catch {
-    const auctionItem = demoAuctions.find((item) => item._id === id);
+    const auctionItem = isDemoMode ? demoAuctions.find((item) => item._id === id) : null;
     if (auctionItem) dispatch(auctionSlice.actions.getAuctionDetailSuccess({ auctionItem, bidders: auctionItem.bids || [] }));
     else dispatch(auctionSlice.actions.getAuctionDetailFailed());
     dispatch(auctionSlice.actions.resetSlice());
