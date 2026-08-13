@@ -31,17 +31,12 @@ const userSchema = new mongoose.Schema({
     },
   },
   paymentMethods: {
-    bankTransfer: {
-      bankAccountNumber: String,
-      bankAccountName: String,
-      bankName: String,
+    type: {
+      bankTransfer: { bankAccountNumber: String, bankAccountName: String, bankName: String },
+      frimi: { frimiAccountNumber: String },
+      paypal: { paypalEmail: String },
     },
-    frimi: {
-      frimiAccountNumber: String,
-    },
-    paypal: {
-      paypalEmail: String,
-    },
+    select: false,
   },
   role: {
     type: String,

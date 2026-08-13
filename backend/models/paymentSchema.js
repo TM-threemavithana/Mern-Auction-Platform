@@ -16,6 +16,7 @@ const paymentSchema = new mongoose.Schema({
   paidAt: Date,
   payoutReleasedAt: Date,
   refundedAt: Date,
+  settlementAppliedAt: { type: Date, default: null },
 }, { timestamps: true });
 
 paymentSchema.index({ buyer: 1, createdAt: -1 });

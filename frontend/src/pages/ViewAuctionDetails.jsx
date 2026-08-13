@@ -124,6 +124,9 @@ const ViewAuctionDetails = () => {
                           <img
                             src={element.profileImage}
                             alt={element.userName}
+                            width="48"
+                            height="48"
+                            loading="lazy"
                             className="w-12 h-12 rounded-full my-2 hidden md:block"
                           />
                           <p className="text-[18px] font-semibold">
@@ -155,12 +158,16 @@ const ViewAuctionDetails = () => {
                   <img
                     src="/notStarted.png"
                     alt="not-started"
+                    width="1200"
+                    height="650"
                     className="w-full max-h-[650px]"
                   />
                 ) : (
                   <img
                     src="/auctionEnded.png"
                     alt="ended"
+                    width="1200"
+                    height="650"
                     className="w-full max-h-[650px]"
                   />
                 )}

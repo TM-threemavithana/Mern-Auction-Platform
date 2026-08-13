@@ -1,10 +1,37 @@
 import { useEffect, useRef, useState } from "react";
 import LotImageZoom from "@/components/LotImageZoom";
 
+const focusableSelector = 'button:not([disabled]), [href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])';
+
 const LotImageGallery = ({ images = [], alt }) => {
-  const validImages = images.map((image) => typeof image === "string" ? image : image?.url).filter(Boolean); const [selected, setSelected] = useState(0); const [open, setOpen] = useState(false); const closeRef = useRef(null); const openerRef = useRef(null);
-  useEffect(() => { if (!open) return undefined; const previousOverflow = document.body.style.overflow; const opener = openerRef.current; document.body.style.overflow = "hidden"; closeRef.current?.focus(); const escape = (event) => { if (event.key === "Escape") setOpen(false); }; window.addEventListener("keydown", escape); return () => { document.body.style.overflow = previousOverflow; window.removeEventListener("keydown", escape); opener?.focus(); }; }, [open]);
+  const validImages = images.map((image) => typeof image === "string" ? image : image?.url).filter(Boolean);
+  const [selected, setSelected] = useState(0);
+  const [open, setOpen] = useState(false);
+  const closeRef = useRef(null);
+  const dialogRef = useRef(null);
+  const openerRef = useRef(null);
+
+  useEffect(() => {
+    if (!open) return undefined;
+    const previousOverflow = document.body.style.overflow;
+    const opener = openerRef.current;
+    document.body.style.overflow = "hidden";
+    closeRef.current?.focus();
+    const keydown = (event) => {
+      if (event.key === "Escape") { setOpen(false); return; }
+      if (event.key !== "Tab") return;
+      const controls = [...(dialogRef.current?.querySelectorAll(focusableSelector) || [])];
+      if (!controls.length) return;
+      const first = controls[0]; const last = controls.at(-1);
+      if (event.shiftKey && document.activeElement === first) { event.preventDefault(); last.focus(); }
+      if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first.focus(); }
+    };
+    window.addEventListener("keydown", keydown);
+    return () => { document.body.style.overflow = previousOverflow; window.removeEventListener("keydown", keydown); opener?.focus(); };
+  }, [open]);
+
   if (!validImages.length) return <LotImageZoom src="" alt={alt}/>;
-  return <div><LotImageZoom src={validImages[selected]} alt={`${alt} image ${selected + 1}`}/><div className="mt-3 flex gap-2 overflow-x-auto pb-1">{validImages.map((src, index) => <button key={src} onClick={() => setSelected(index)} className={`h-16 w-16 shrink-0 overflow-hidden rounded-md border-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-600 ${index === selected ? "border-amber-600" : "border-slate-200"}`} aria-label={`View image ${index + 1}`}><img src={src} alt="" width="64" height="64" loading="lazy" className="h-full w-full object-cover"/></button>)}<button ref={openerRef} onClick={() => setOpen(true)} className="h-16 shrink-0 rounded-md border border-slate-300 px-3 text-xs font-semibold text-slate-700 hover:bg-slate-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-600">Full screen</button></div>{open && <div role="dialog" aria-modal="true" aria-label="Full screen lot images" className="fixed inset-0 z-[100] grid overscroll-contain place-items-center bg-slate-950/90 p-4"><div className="relative w-full max-w-5xl"><button ref={closeRef} onClick={() => setOpen(false)} className="absolute right-2 top-2 z-10 rounded-md bg-white px-3 py-2 text-sm font-semibold text-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-600">Close</button><img src={validImages[selected]} alt={`${alt} image ${selected + 1}`} width="1200" height="1200" className="max-h-[85vh] w-full rounded-lg bg-white object-contain"/><div className="mt-3 flex justify-center gap-2">{validImages.map((src, index) => <button key={src} onClick={() => setSelected(index)} className={`h-12 w-12 overflow-hidden rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-400 ${index === selected ? "ring-2 ring-amber-400" : "opacity-70"}`} aria-label={`Select image ${index + 1}`}><img src={src} alt="" width="48" height="48" className="h-full w-full object-cover"/></button>)}</div></div></div>}</div>;
+  return <div><LotImageZoom src={validImages[selected]} alt={`${alt} image ${selected + 1}`}/><div className="mt-3 flex gap-2 overflow-x-auto pb-1">{validImages.map((src, index) => <button key={src} type="button" onClick={() => setSelected(index)} className={`h-16 w-16 shrink-0 overflow-hidden rounded-md border-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-600 ${index === selected ? "border-amber-600" : "border-slate-200"}`} aria-label={`View image ${index + 1}`}><img src={src} alt="" width="64" height="64" loading="lazy" className="h-full w-full object-cover"/></button>)}<button ref={openerRef} type="button" onClick={() => setOpen(true)} className="h-16 shrink-0 rounded-md border border-slate-300 px-3 text-xs font-semibold text-slate-700 hover:bg-slate-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-600">Full screen</button></div>{open && <div role="dialog" aria-modal="true" aria-label="Full screen lot images" className="fixed inset-0 z-[100] grid overscroll-contain place-items-center bg-slate-950/90 p-4"><div ref={dialogRef} className="relative w-full max-w-5xl"><button ref={closeRef} type="button" onClick={() => setOpen(false)} className="absolute right-2 top-2 z-10 rounded-md bg-white px-3 py-2 text-sm font-semibold text-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-600">Close</button><img src={validImages[selected]} alt={`${alt} image ${selected + 1}`} width="1200" height="1200" className="max-h-[85vh] w-full rounded-lg bg-white object-contain"/><div className="mt-3 flex justify-center gap-2">{validImages.map((src, index) => <button key={src} type="button" onClick={() => setSelected(index)} className={`h-12 w-12 overflow-hidden rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-400 ${index === selected ? "ring-2 ring-amber-400" : "opacity-70"}`} aria-label={`Select image ${index + 1}`}><img src={src} alt="" width="48" height="48" className="h-full w-full object-cover"/></button>)}</div></div></div>}</div>;
 };
+
 export default LotImageGallery;

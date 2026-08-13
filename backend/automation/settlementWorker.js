@@ -41,11 +41,17 @@ export const settleAuction = async (auctionId) => {
       const [buyer, seller] = await Promise.all([User.findById(auction.highestBidder).session(session), User.findById(auction.createdBy).session(session)]);
       if (!buyer || !seller) throw new Error("Auction participants could not be found.");
       const fee = money(auction.currentBid * 0.05);
-      const existingPayment = await Payment.findOne({ auction: auction._id }).session(session);
-      if (!existingPayment) {
-        await Payment.create([{ auction: auction._id, buyer: buyer._id, seller: seller._id, amount: auction.currentBid, platformFee: fee, sellerAmount: money(auction.currentBid - fee), provider: process.env.PAYMENT_PROVIDER || "mock" }], { session });
-      }
-      await User.updateOne({ _id: buyer._id }, { $inc: { moneySpent: auction.currentBid, auctionsWon: 1 } }, { session });
+      const payment = await Payment.findOneAndUpdate(
+        { auction: auction._id },
+        { $setOnInsert: { auction: auction._id, buyer: buyer._id, seller: seller._id, amount: auction.currentBid, platformFee: fee, sellerAmount: money(auction.currentBid - fee), provider: process.env.PAYMENT_PROVIDER || "mock" } },
+        { upsert: true, new: true, setDefaultsOnInsert: true, session }
+      );
+      const applied = await Payment.updateOne(
+        { _id: payment._id, settlementAppliedAt: null },
+        { $set: { settlementAppliedAt: now } },
+        { session }
+      );
+      if (applied.modifiedCount === 1) await User.updateOne({ _id: buyer._id }, { $inc: { moneySpent: auction.currentBid, auctionsWon: 1 } }, { session });
       auction.set({ settlementStatus: "settled", commissionCalculated: true, settledAt: now, settlementLockId: undefined, settlementLockExpiresAt: undefined });
       await auction.save({ session }); result = { auction, buyer, noSale: false };
     });
