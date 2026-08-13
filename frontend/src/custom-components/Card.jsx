@@ -36,7 +36,7 @@ const Card = ({ imgSrc, title, startingBid, startTime, endTime, id }) => {
       <img src={imgSrc} alt={title} width="400" height="300" loading="lazy" className="m-auto aspect-[4/3] w-full object-contain p-4 md:p-8" />
       <div className="min-w-0 px-3 pb-4 pt-2">
         <h2 className="truncate text-lg font-semibold group-hover:text-amber-700">{title}</h2>
-        <p className="mt-2 text-sm text-stone-600">Starting bid <span className="font-bold text-amber-700">${Number(startingBid || 0).toFixed(2)}</span></p>
+        <p className="mt-2 text-sm text-stone-600">Starting bid <span className="font-bold text-amber-700">LKR {Number(startingBid || 0).toLocaleString("en-LK", { minimumFractionDigits: 2 })}</span></p>
         <p className="mt-1 text-sm text-stone-600"><span className="font-medium">{timeLeft?.type || "Status"}</span> <span className="font-bold text-amber-700 tabular-nums">{timeText}</span></p>
       </div>
     </Link>

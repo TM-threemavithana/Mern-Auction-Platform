@@ -28,6 +28,11 @@ export const addNewAuctionItem = catchAsyncErrors(async (req, res, next) => {
     startingBid,
     startTime,
     endTime,
+    estimateLow,
+    estimateHigh,
+    reservePrice,
+    conditionReport,
+    deliveryOptions,
   } = req.body;
   if (
     !title ||
@@ -48,6 +53,10 @@ export const addNewAuctionItem = catchAsyncErrors(async (req, res, next) => {
   if (Number.isNaN(new Date(startTime).valueOf()) || Number.isNaN(new Date(endTime).valueOf())) {
     return next(new ErrorHandler("Enter valid auction dates.", 400));
   }
+  const parsedEstimateLow = estimateLow === "" || estimateLow === undefined ? undefined : Number(estimateLow);
+  const parsedEstimateHigh = estimateHigh === "" || estimateHigh === undefined ? undefined : Number(estimateHigh);
+  const parsedReservePrice = reservePrice === "" || reservePrice === undefined ? undefined : Number(reservePrice);
+  if ((parsedEstimateLow !== undefined && (!Number.isFinite(parsedEstimateLow) || parsedEstimateLow < 0)) || (parsedEstimateHigh !== undefined && (!Number.isFinite(parsedEstimateHigh) || parsedEstimateHigh < parsedEstimateLow)) || (parsedReservePrice !== undefined && (!Number.isFinite(parsedReservePrice) || parsedReservePrice < parsedStartingBid))) return next(new ErrorHandler("Check your estimate and reserve values.", 400));
   if (new Date(startTime) < Date.now()) {
     return next(
       new ErrorHandler(
@@ -93,6 +102,11 @@ export const addNewAuctionItem = catchAsyncErrors(async (req, res, next) => {
       category,
       condition,
       startingBid: parsedStartingBid,
+      estimateLow: parsedEstimateLow,
+      estimateHigh: parsedEstimateHigh,
+      reservePrice: parsedReservePrice,
+      conditionReport,
+      deliveryOptions: Array.isArray(deliveryOptions) ? deliveryOptions : String(deliveryOptions || "pickup").split(",").filter(Boolean),
       startTime,
       endTime,
       image: {
@@ -117,9 +131,17 @@ export const getAllItems = catchAsyncErrors(async (req, res, next) => {
   const page = Math.max(Number.parseInt(req.query.page, 10) || 1, 1);
   const limit = Math.min(Math.max(Number.parseInt(req.query.limit, 10) || 24, 1), 100);
   const search = String(req.query.q || "").trim();
-  const filter = search ? { $or: [{ title: { $regex: search, $options: "i" } }, { category: { $regex: search, $options: "i" } }] } : {};
+  const filter = search ? { $or: [{ title: { $regex: search, $options: "i" } }, { category: { $regex: search, $options: "i" } }, { description: { $regex: search, $options: "i" } }] } : {};
+  if (req.query.category) filter.category = String(req.query.category);
+  if (req.query.condition) filter.condition = String(req.query.condition);
+  if (req.query.status === "active") { filter.startTime = { $lte: new Date() }; filter.endTime = { $gte: new Date() }; }
+  if (req.query.status === "upcoming") filter.startTime = { $gt: new Date() };
+  if (req.query.status === "ended") filter.endTime = { $lt: new Date() };
+  const minPrice = Number(req.query.minPrice); const maxPrice = Number(req.query.maxPrice);
+  if (Number.isFinite(minPrice) || Number.isFinite(maxPrice)) filter.startingBid = { ...(Number.isFinite(minPrice) ? { $gte: minPrice } : {}), ...(Number.isFinite(maxPrice) ? { $lte: maxPrice } : {}) };
+  const sort = { newest: { createdAt: -1 }, ending: { endTime: 1 }, price_low: { startingBid: 1 }, price_high: { startingBid: -1 } }[req.query.sort] || { createdAt: -1 };
   const [items, total] = await Promise.all([
-    Auction.find(filter).sort({ createdAt: -1 }).skip((page - 1) * limit).limit(limit),
+    Auction.find(filter).sort(sort).skip((page - 1) * limit).limit(limit),
     Auction.countDocuments(filter),
   ]);
   res.status(200).json({
@@ -138,7 +160,7 @@ export const getAuctionDetails = catchAsyncErrors(async (req, res, next) => {
   if (!auctionItem) {
     return next(new ErrorHandler("Auction not found.", 404));
   }
-  if (auctionItem.createdBy.toString() !== req.user._id.toString() && req.user.role !== "Super Admin") {
+  if (auctionItem.createdBy.toString() !== req.user._id.toString() && req.user.role !== "Super Admin" && req.user.role !== "Bidder") {
     return next(new ErrorHandler("You can only view your own auction details.", 403));
   }
   const bidders = auctionItem.bids.sort((a, b) => b.amount - a.amount);

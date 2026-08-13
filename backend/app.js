@@ -13,6 +13,8 @@ import bidRouter from "./router/bidRoutes.js";
 import commissionRouter from "./router/commissionRouter.js";
 import superAdminRouter from "./router/superAdminRoutes.js";
 import paymentRouter from "./router/paymentRouter.js";
+import auctionToolsRouter from "./router/auctionToolsRouter.js";
+import newsletterRouter from "./router/newsletterRouter.js";
 
 const app = express();
 config({
@@ -63,6 +65,8 @@ app.use("/api/v1/bid", bidRouter);
 app.use("/api/v1/commission", commissionRouter);
 app.use("/api/v1/superadmin", superAdminRouter);
 app.use("/api/v1/payments", paymentRouter);
+app.use("/api/v1/tools", auctionToolsRouter);
+app.use("/api/v1/newsletter", newsletterRouter);
 
 app.use((req, res, next) => next(new ErrorHandler("Route not found.", 404)));
 app.use(errorMiddleware);

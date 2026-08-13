@@ -4,6 +4,7 @@ import UpcomingAuctions from "./home-sub-components/UpcomingAuctions";
 import Leaderboard from "./home-sub-components/Leaderboard";
 ;
 import { Hero } from "./Hero.jsx";
+import NewsletterSignup from "@/components/NewsletterSignup";
 
 
 const Home = () => {
@@ -14,6 +15,7 @@ const Home = () => {
         <FeaturedAuctions />
         <UpcomingAuctions />
         <Leaderboard />
+        <NewsletterSignup />
       </main>
     </div>
   );

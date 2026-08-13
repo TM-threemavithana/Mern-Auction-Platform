@@ -24,9 +24,10 @@ const Navbar = () => {
     ["/about", "About"],
     ["/contact", "Contact"],
   ];
-  if (user?.role === "Auctioneer") links.splice(2, 0, ["/create-auction", "Create Auction"], ["/view-my-auctions", "My Auctions"]);
-  if (user?.role === "Bidder") links.splice(2, 0, ["/payments", "My Payments"]);
-  if (user?.role === "Super Admin") links.splice(2, 0, ["/dashboard", "Dashboard"]);
+  if (user?.role === "Auctioneer") links.splice(2, 0, ["/create-auction", "Create Auction"], ["/view-my-auctions", "My Auctions"], ["/request-valuation", "Request Valuation"]);
+  if (user?.role === "Bidder") links.splice(2, 0, ["/payments", "My Payments"], ["/watchlist", "Saved Lots"]);
+  links.splice(2, 0, ["/auction-services", "Demo Services"]);
+  if (user?.role === "Super Admin") links.splice(2, 0, ["/dashboard", "Dashboard"], ["/staff-operations", "Staff Operations"]);
 
   return (
     <header className="sticky top-0 z-50 border-b border-slate-200 bg-white/95 backdrop-blur">

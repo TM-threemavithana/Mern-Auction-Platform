@@ -1,0 +1,15 @@
+import express from "express";
+import { isAuthenticated, isAuthorized } from "../middlewares/auth.js";
+import { addWatchlist, createValuationRequest, getAdminValuations, getAuctionRegistrations, getMyValuations, getWatchlist, registerForAuction, removeWatchlist, reviewRegistration, reviewValuation } from "../controllers/auctionToolsController.js";
+const router = express.Router();
+router.get("/watchlist", isAuthenticated, isAuthorized("Bidder"), getWatchlist);
+router.post("/watchlist/:auctionId", isAuthenticated, isAuthorized("Bidder"), addWatchlist);
+router.delete("/watchlist/:auctionId", isAuthenticated, isAuthorized("Bidder"), removeWatchlist);
+router.post("/auctions/:auctionId/register", isAuthenticated, isAuthorized("Bidder"), registerForAuction);
+router.get("/auctions/:auctionId/registrations", isAuthenticated, isAuthorized("Auctioneer"), getAuctionRegistrations);
+router.put("/registrations/:id", isAuthenticated, isAuthorized("Auctioneer"), reviewRegistration);
+router.post("/valuations", isAuthenticated, isAuthorized("Auctioneer"), createValuationRequest);
+router.get("/valuations/mine", isAuthenticated, isAuthorized("Auctioneer"), getMyValuations);
+router.get("/valuations", isAuthenticated, isAuthorized("Super Admin"), getAdminValuations);
+router.put("/valuations/:id", isAuthenticated, isAuthorized("Super Admin"), reviewValuation);
+export default router;

@@ -1,205 +1,25 @@
 import Spinner from "@/custom-components/Spinner";
 import { getAuctionDetail } from "@/store/slices/auctionSlice";
 import { placeBid } from "@/store/slices/bidSlice";
+import api, { getErrorMessage } from "@/lib/api";
 import { useEffect, useState } from "react";
-import { FaGreaterThan } from "react-icons/fa";
-import { RiAuctionFill } from "react-icons/ri";
+import { toast } from "react-toastify";
 import { useDispatch, useSelector } from "react-redux";
 import { Link, useParams } from "react-router-dom";
+import LotImageGallery from "@/components/LotImageGallery";
+
+const money = (value) => `LKR ${Number(value || 0).toLocaleString("en-LK", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+const Info = ({ label, value }) => <div className="flex justify-between gap-4 border-b border-slate-100 pb-2"><dt className="text-slate-500">{label}</dt><dd className="text-right font-semibold capitalize text-slate-900">{value}</dd></div>;
 
 const AuctionItem = () => {
-  const { id } = useParams();
-  const { loading, auctionDetail, auctionBidders } = useSelector(
-    (state) => state.auction
-  );
-  const { user } = useSelector((state) => state.user);
-
-  const dispatch = useDispatch();
-
-  const [amount, setAmount] = useState(0);
-  const handleBid = () => {
-    dispatch(placeBid(id, { amount: Number(amount) }));
-  };
-
-  useEffect(() => {
-    if (id) {
-      dispatch(getAuctionDetail(id));
-    }
-  }, [dispatch, id]);
-  return (
-    <>
-      <section className="mx-auto w-full max-w-7xl px-4 py-8 sm:px-6">
-        <div className="text-[16px] flex flex-wrap gap-2 items-center">
-          <Link
-            to="/"
-            className="font-semibold transition-colors hover:text-amber-700"
-          >
-            Home
-          </Link>
-          <FaGreaterThan className="text-stone-400" />
-          <Link
-            to={"/auctions"}
-            className="font-semibold transition-colors hover:text-amber-700"
-          >
-            Auctions
-          </Link>
-          <FaGreaterThan className="text-stone-400" />
-          <p className="text-stone-600">{auctionDetail.title}</p>
-        </div>
-        {loading ? (
-          <Spinner />
-        ) : (
-          <div className="grid gap-6 lg:grid-cols-2">
-            <div className="flex-1 flex flex-col gap-3">
-              <div className="flex gap-4 flex-col lg:flex-row">
-                <div className="flex aspect-square w-full max-w-48 items-center justify-center rounded-lg bg-white p-5 lg:h-48">
-                  <img
-                    src={auctionDetail.image?.url}
-                    alt={auctionDetail.title || "Auction item"}
-                    width="192"
-                    height="192"
-                    className="h-full w-full object-contain"
-                  />
-                </div>
-                <div className="flex flex-col justify-around pb-4">
-                  <h3 className="text-[#111] text-xl font-semibold mb-2 min-[480px]:text-xl md:text-2xl lg:text-3xl">
-                    {auctionDetail.title}
-                  </h3>
-                  <p className="text-xl font-semibold">
-                    Condition:{" "}
-                    <span className="text-[#B7791F]">
-                      {auctionDetail.condition}
-                    </span>
-                  </p>
-                  <p className="text-xl font-semibold">
-                    Minimum Bid:{" "}
-                    <span className="text-[#B7791F]">
-                      ${auctionDetail.startingBid}
-                    </span>
-                  </p>
-                </div>
-              </div>
-              <h2 className="text-xl font-bold">
-                Auction Item Description
-              </h2>
-              <hr className="my-2 border-t-[1px] border-t-stone-700" />
-              <ul className="list-disc space-y-2 pl-5 text-base text-slate-700">{auctionDetail.description &&
-                auctionDetail.description.split(". ").filter(Boolean).map((element, index) => {
-                  return (
-                    <li key={index} className="text-[18px] my-2">
-                      {element}
-                    </li>
-                  );
-                })}</ul>
-            </div>
-            <div className="flex-1">
-              <header className="bg-stone-200 py-4 text-[24px] font-semibold px-4">
-                BIDS
-              </header>
-              <div className="min-h-72 rounded-b-lg bg-white px-4 lg:min-h-[650px]">
-                {auctionBidders &&
-                new Date(auctionDetail.startTime) < Date.now() &&
-                new Date(auctionDetail.endTime) > Date.now() ? (
-                  auctionBidders.length > 0 ? (
-                    auctionBidders.map((element, index) => {
-                      return (
-                        <div
-                          key={index}
-                        className="flex min-w-0 items-center justify-between gap-3 py-2"
-                        >
-                          <div className="flex min-w-0 items-center gap-3">
-                            <img
-                              src={element.profileImage}
-                              alt={element.userName}
-                              className="w-12 h-12 rounded-full my-2 hidden md:block"
-                            />
-                            <p className="truncate text-base font-semibold">
-                              {element.userName}
-                            </p>
-                          </div>
-                          {index === 0 ? (
-                            <p className="text-[20px] font-semibold text-primary">
-                              1st
-                            </p>
-                          ) : index === 1 ? (
-                            <p className="text-[20px] font-semibold text-amber-700">
-                              2nd
-                            </p>
-                          ) : index === 2 ? (
-                            <p className="text-[20px] font-semibold text-slate-600">
-                              3rd
-                            </p>
-                          ) : (
-                            <p className="text-[20px] font-semibold text-gray-600">
-                              {index + 1}th
-                            </p>
-                          )}
-                        </div>
-                      );
-                    })
-                  ) : (
-                    <p className="text-center text-gray-500 py-4">
-                      No bids for this auction
-                    </p>
-                  )
-                ) : Date.now() < new Date(auctionDetail.startTime) ? (
-                  <img
-                    src="/notStarted.png"
-                    alt="not-started"
-                className="h-auto w-full max-h-[650px] object-contain"
-                  />
-                ) : (
-                  <img
-                    src="/auctionEnded.png"
-                    alt="ended"
-                className="h-auto w-full max-h-[650px] object-contain"
-                  />
-                )}
-              </div>
-
-              <div className="flex flex-col gap-3 rounded-b-lg bg-[#B7791F] px-4 py-4 text-base font-semibold sm:flex-row sm:items-center sm:justify-between sm:text-xl">
-                {user?.role === "Bidder" && Date.now() >= new Date(auctionDetail.startTime) &&
-                Date.now() <= new Date(auctionDetail.endTime) ? (
-                  <>
-                    <div className="flex gap-3 flex-col sm:flex-row sm:items-center">
-                      <p className="text-white">Place Bid</p>
-                      <input
-                        type="number"
-                        aria-label="Bid amount"
-                        min={auctionDetail.currentBid || auctionDetail.startingBid}
-                        step="0.01"
-                        inputMode="decimal"
-                        className="w-full rounded-md border border-white bg-white p-2 text-slate-950 sm:w-36 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-950"
-                        value={amount}
-                        onChange={(e) => setAmount(e.target.value)}
-                      />
-                    </div>
-                    <button
-                      aria-label="Place bid"
-                      className="rounded-md bg-slate-950 p-3 text-white hover:bg-slate-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white"
-                      onClick={handleBid}
-                    >
-                      <RiAuctionFill />
-                    </button>
-                  </>
-                ) : user?.role !== "Bidder" ? (
-                  <p className="text-white font-semibold text-xl">Only bidders can place bids.</p>
-                ) : new Date(auctionDetail.startTime) > Date.now() ? (
-                  <p className="text-white font-semibold text-xl">
-                    Auction has not started yet!
-                  </p>
-                ) : (
-                  <p className="text-white font-semibold text-xl">
-                    Auction has ended!
-                  </p>
-                )}
-              </div>
-            </div>
-          </div>
-        )}
-      </section>
-    </>
-  );
+  const { id } = useParams(); const { loading, auctionDetail, auctionBidders } = useSelector((state) => state.auction); const { user } = useSelector((state) => state.user); const dispatch = useDispatch();
+  const [amount, setAmount] = useState(""); const [registering, setRegistering] = useState(false); const [saving, setSaving] = useState(false);
+  useEffect(() => { if (id) dispatch(getAuctionDetail(id)); }, [dispatch, id]);
+  const bid = () => dispatch(placeBid(id, { amount: Number(amount) }));
+  const register = async () => { setRegistering(true); try { const { data } = await api.post(`/tools/auctions/${id}/register`); toast.success(data.message); } catch (error) { toast.error(getErrorMessage(error)); } finally { setRegistering(false); } };
+  const watch = async () => { setSaving(true); try { const { data } = await api.post(`/tools/watchlist/${id}`); toast.success(data.message); } catch (error) { toast.error(getErrorMessage(error)); } finally { setSaving(false); } };
+  if (loading) return <Spinner />;
+  const isLive = new Date(auctionDetail.startTime) <= new Date() && new Date(auctionDetail.endTime) >= new Date(); const price = auctionDetail.currentBid || auctionDetail.startingBid || 0; const minimumBid = Number(price) + (auctionDetail.currentBid ? Number(auctionDetail.bidIncrement || 100) : 0); const fee = Number(price) * 0.05;
+  return <main className="mx-auto w-full max-w-7xl px-4 py-8 sm:px-6 lg:py-12"><Link to="/auctions" className="text-sm font-semibold text-amber-700 hover:text-amber-800">Back to catalogue</Link><div className="mt-5 grid gap-8 lg:grid-cols-[minmax(0,1.05fr)_minmax(20rem,.95fr)]"><section><div className="grid gap-6 sm:grid-cols-[minmax(0,1fr)_minmax(14rem,.9fr)]"><LotImageGallery images={auctionDetail.images || [auctionDetail.image?.url]} alt={auctionDetail.title || "Auction item"}/><div><p className="text-sm font-semibold uppercase tracking-wide text-amber-700">{auctionDetail.category || "Auction lot"}{auctionDetail.lotNumber ? ` / Lot ${auctionDetail.lotNumber}` : ""}</p><h1 className="mt-2 text-3xl font-bold tracking-tight text-slate-950">{auctionDetail.title}</h1><dl className="mt-5 space-y-3"><Info label="Condition" value={auctionDetail.condition}/><Info label="Starting bid" value={money(auctionDetail.startingBid)}/>{auctionDetail.estimateLow != null ? <Info label="Estimate" value={`${money(auctionDetail.estimateLow)} - ${money(auctionDetail.estimateHigh)}`}/> : null}<Info label="Delivery" value={(auctionDetail.deliveryOptions || ["pickup"]).join(" and ")}/></dl>{user?.role === "Bidder" && <div className="mt-6 flex flex-wrap gap-3"><button onClick={register} disabled={registering} className="rounded-md bg-amber-700 px-4 py-2 font-semibold text-white hover:bg-amber-800 disabled:bg-amber-400">{registering ? "Submitting..." : "Register to bid"}</button><button onClick={watch} disabled={saving} className="rounded-md border border-amber-700 px-4 py-2 font-semibold text-amber-800 hover:bg-amber-50 disabled:text-amber-400">{saving ? "Saving..." : "Save lot"}</button></div>}<Link to={`/auction-services?lot=${id}`} className="mt-4 inline-block text-sm font-semibold text-amber-700 hover:text-amber-800">Demo bidding & delivery tools</Link></div></div><section className="mt-8 rounded-xl border border-slate-200 bg-white p-5"><h2 className="text-xl font-bold">Lot details</h2><p className="mt-3 whitespace-pre-line leading-7 text-slate-700">{auctionDetail.description}</p>{auctionDetail.conditionReport && <><h3 className="mt-6 font-bold">Condition report</h3><p className="mt-2 whitespace-pre-line text-slate-700">{auctionDetail.conditionReport}</p></>}</section></section><aside className="overflow-hidden rounded-xl border border-slate-200 bg-white"><div className="bg-primary px-5 py-4 text-lg font-bold text-white">Bidding</div><div className="p-5" aria-live="polite"><p className="text-sm text-slate-600">Current bid</p><p className="mt-1 text-3xl font-bold text-slate-950">{money(price)}</p><p className="mt-2 text-sm text-slate-600">{isLive ? "Live now" : new Date(auctionDetail.startTime) > new Date() ? "Upcoming" : "Auction ended"}</p>{user?.role === "Bidder" && isLive && <><p className="mt-4 text-sm text-slate-600">Minimum next bid: {money(minimumBid)} · increments of {money(auctionDetail.bidIncrement || 100)}</p><div className="mt-3 flex gap-2"><input type="number" min={minimumBid} step={auctionDetail.bidIncrement || 100} value={amount} onChange={(event) => setAmount(event.target.value)} className="input-field min-w-0" aria-label="Bid amount in Sri Lankan rupees" placeholder="Your bid (LKR)"/><button onClick={bid} className="rounded-md bg-amber-700 px-4 font-semibold text-white hover:bg-amber-800">Bid</button></div></>}{user?.role !== "Bidder" && <p className="mt-5 rounded-md bg-amber-50 p-3 text-sm text-amber-900">Sign in as a bidder to register and place bids.</p>}<div className="mt-6 border-t border-slate-200 pt-5"><h2 className="font-bold">Price transparency</h2><p className="mt-2 text-sm text-slate-600">At the current bid, the 5% platform service fee is {money(fee)}. Estimated checkout total: <strong>{money(Number(price) + fee)}</strong>.</p></div></div><div className="border-t border-slate-200 p-5"><h2 className="font-bold">Bid activity</h2><div className="mt-3 space-y-3">{auctionBidders?.length ? auctionBidders.slice(0, 5).map((bidder, index) => <div key={`${bidder.userName}-${index}`} className="flex items-center justify-between text-sm"><span className="truncate font-medium">{bidder.userName}</span><span className="text-slate-600">#{index + 1}</span></div>) : <p className="text-sm text-slate-600">No bids placed yet.</p>}</div></div></aside></div></main>;
 };
-
 export default AuctionItem;

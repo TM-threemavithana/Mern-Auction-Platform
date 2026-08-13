@@ -1,6 +1,7 @@
 import { createSlice } from "@reduxjs/toolkit";
 import api, { getErrorMessage } from "@/lib/api";
 import { toast } from "react-toastify";
+import { demoAuctions } from "@/data/demoAuctions";
 
 const auctionSlice = createSlice({
   name: "auction",
@@ -11,6 +12,7 @@ const auctionSlice = createSlice({
     auctionBidders: {},
     myAuctions: [],
     allAuctions: [],
+    usingDemoData: false,
   },
   reducers: {
     createAuctionRequest(state, action) {
@@ -28,9 +30,12 @@ const auctionSlice = createSlice({
     getAllAuctionItemSuccess(state, action) {
       state.loading = false;
       state.allAuctions = action.payload;
+      state.usingDemoData = false;
     },
     getAllAuctionItemFailed(state, action) {
       state.loading = false;
+      state.allAuctions = demoAuctions;
+      state.usingDemoData = true;
     },
     getAuctionDetailRequest(state, action) {
       state.loading = true;
@@ -90,7 +95,7 @@ export const getAllAuctionItems = () => async (dispatch) => {
     dispatch(auctionSlice.actions.resetSlice());
   } catch (error) {
     dispatch(auctionSlice.actions.getAllAuctionItemFailed());
-    console.error(getErrorMessage(error));
+    console.info(`Using offline catalogue: ${getErrorMessage(error)}`);
     dispatch(auctionSlice.actions.resetSlice());
   }
 };
@@ -114,9 +119,10 @@ export const getAuctionDetail = (id) => async (dispatch) => {
     const response = await api.get(`/auctionitem/auction/${id}`);
     dispatch(auctionSlice.actions.getAuctionDetailSuccess(response.data));
     dispatch(auctionSlice.actions.resetSlice());
-  } catch (error) {
-    dispatch(auctionSlice.actions.getAuctionDetailFailed());
-    console.error(getErrorMessage(error));
+  } catch {
+    const auctionItem = demoAuctions.find((item) => item._id === id);
+    if (auctionItem) dispatch(auctionSlice.actions.getAuctionDetailSuccess({ auctionItem, bidders: auctionItem.bids || [] }));
+    else dispatch(auctionSlice.actions.getAuctionDetailFailed());
     dispatch(auctionSlice.actions.resetSlice());
   }
 };

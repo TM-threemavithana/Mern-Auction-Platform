@@ -3,6 +3,8 @@ import ErrorHandler from "../middlewares/error.js";
 import { Auction } from "../models/auctionSchema.js";
 import { Bid } from "../models/bidSchema.js";
 import { User } from "../models/userSchema.js";
+import { AuctionRegistration } from "../models/auctionRegistrationSchema.js";
+import { BidAudit } from "../models/bidAuditSchema.js";
 
 export const placeBid = catchAsyncErrors(async (req, res, next) => {
   const { id } = req.params;
@@ -16,7 +18,13 @@ export const placeBid = catchAsyncErrors(async (req, res, next) => {
     "userName profileImage"
   );
   if (!bidder) return next(new ErrorHandler("Bidder not found.", 404));
+  const registration = await AuctionRegistration.exists({ auction: id, bidder: bidder._id, status: "approved" });
+  if (!registration) return next(new ErrorHandler("Your registration must be approved before you can bid.", 403));
 
+  const auctionBeforeBid = await Auction.findById(id).select("currentBid startingBid bidIncrement endTime antiSnipingMinutes");
+  if (!auctionBeforeBid) return next(new ErrorHandler("Auction item not found.", 404));
+  const minimumBid = (auctionBeforeBid.currentBid || auctionBeforeBid.startingBid) + (auctionBeforeBid.currentBid ? auctionBeforeBid.bidIncrement : 0);
+  if (amount < minimumBid) return next(new ErrorHandler(`Minimum allowed bid is ${minimumBid}.`, 400));
   const bidEntry = {
     userId: bidder._id,
     userName: bidder.userName,
@@ -34,8 +42,7 @@ export const placeBid = catchAsyncErrors(async (req, res, next) => {
       endTime: { $gte: now },
       $expr: {
         $and: [
-          { $gt: [amount, "$currentBid"] },
-          { $gte: [amount, "$startingBid"] },
+          { $gte: [amount, { $cond: [{ $gt: ["$currentBid", 0] }, { $add: ["$currentBid", "$bidIncrement"] }, "$startingBid"] }] },
         ],
       },
     },
@@ -74,10 +81,17 @@ export const placeBid = catchAsyncErrors(async (req, res, next) => {
     },
     { upsert: true, new: true, runValidators: true, setDefaultsOnInsert: true }
   );
+  const extensionThreshold = new Date(now.getTime() + auctionItem.antiSnipingMinutes * 60000);
+  if (auctionItem.antiSnipingMinutes > 0 && auctionItem.endTime <= extensionThreshold) {
+    auctionItem.endTime = new Date(now.getTime() + auctionItem.antiSnipingMinutes * 60000);
+    await auctionItem.save();
+  }
+  await BidAudit.create({ auction: auctionItem._id, bidder: bidder._id, amount, previousBid: auctionBeforeBid.currentBid, source: "web" });
 
   res.status(201).json({
     success: true,
     message: "Bid placed.",
     currentBid: auctionItem.currentBid,
+    endTime: auctionItem.endTime,
   });
 });

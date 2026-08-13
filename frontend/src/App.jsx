@@ -23,6 +23,13 @@ import Contact from "./pages/Contact";
 import UserProfile from "./pages/UserProfile";
 import ProtectedRoute from "./components/ProtectedRoute";
 import Payments from "./pages/Payments";
+import Watchlist from "./pages/Watchlist";
+import ValuationRequest from "./pages/ValuationRequest";
+import Policies from "./pages/Policies";
+import AuctionCalendar from "./pages/AuctionCalendar";
+import { Highlights, Legal, Stories, Trust } from "./pages/PublicInfo";
+import AuctionServices from "./pages/AuctionServices";
+import StaffOperations from "./pages/StaffOperations";
 import {Footer} from "../src/layout/Footer";
 
 const App = () => {
@@ -54,6 +61,19 @@ const App = () => {
         <Route path="/contact" element={<Contact />} />
         <Route path="/me" element={<ProtectedRoute><UserProfile /></ProtectedRoute>} />
         <Route path="/payments" element={<ProtectedRoute roles={["Bidder", "Auctioneer"]}><Payments /></ProtectedRoute>} />
+        <Route path="/watchlist" element={<ProtectedRoute roles={["Bidder"]}><Watchlist /></ProtectedRoute>} />
+        <Route path="/request-valuation" element={<ProtectedRoute roles={["Auctioneer"]}><ValuationRequest /></ProtectedRoute>} />
+        <Route path="/policies" element={<Policies />} />
+        <Route path="/calendar" element={<AuctionCalendar />} />
+        <Route path="/results" element={<AuctionCalendar results />} />
+        <Route path="/highlights" element={<Highlights />} />
+        <Route path="/stories" element={<Stories />} />
+        <Route path="/our-standards" element={<Trust />} />
+        <Route path="/terms" element={<Legal type="terms" />} />
+        <Route path="/privacy" element={<Legal type="privacy" />} />
+        <Route path="/buyer-agreement" element={<Legal type="buyer" />} />
+        <Route path="/auction-services" element={<AuctionServices />} />
+        <Route path="/staff-operations" element={<ProtectedRoute roles={["Super Admin"]}><StaffOperations /></ProtectedRoute>} />
         
       </Routes>
       </main>

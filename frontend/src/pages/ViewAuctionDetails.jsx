@@ -1,9 +1,11 @@
 import Spinner from "@/custom-components/Spinner";
 import { getAuctionDetail } from "@/store/slices/auctionSlice";
-import { useEffect } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { FaGreaterThan } from "react-icons/fa";
 import { useDispatch, useSelector } from "react-redux";
 import { Link, useNavigate, useParams } from "react-router-dom";
+import api, { getErrorMessage } from "@/lib/api";
+import { toast } from "react-toastify";
 
 const ViewAuctionDetails = () => {
   const { id } = useParams();
@@ -14,6 +16,17 @@ const ViewAuctionDetails = () => {
 
   const navigateTo = useNavigate();
   const dispatch = useDispatch();
+  const [registrations, setRegistrations] = useState([]);
+
+  const loadRegistrations = useCallback(async () => {
+    if (user?.role !== "Auctioneer" || !id) return;
+    try { const { data } = await api.get(`/tools/auctions/${id}/registrations`); setRegistrations(data.registrations); }
+    catch (error) { toast.error(getErrorMessage(error)); }
+  }, [id, user?.role]);
+  const reviewRegistration = async (registrationId, status) => {
+    try { await api.put(`/tools/registrations/${registrationId}`, { status }); setRegistrations((items) => items.map((item) => item._id === registrationId ? { ...item, status } : item)); toast.success(`Bidder ${status}.`); }
+    catch (error) { toast.error(getErrorMessage(error)); }
+  };
 
   useEffect(() => {
     if (!isAuthenticated || user.role === "Bidder") {
@@ -21,8 +34,9 @@ const ViewAuctionDetails = () => {
     }
     if (id) {
       dispatch(getAuctionDetail(id));
+      loadRegistrations();
     }
-  }, [dispatch, id, isAuthenticated, navigateTo, user.role]);
+  }, [dispatch, id, isAuthenticated, loadRegistrations, navigateTo, user?.role]);
 
   return (
     <>
@@ -89,6 +103,7 @@ const ViewAuctionDetails = () => {
                     </li>
                   );
                 })}
+              {user?.role === "Auctioneer" && <section className="mt-8 rounded-xl border border-slate-200 bg-white p-5"><h2 className="text-lg font-bold">Bidder registrations</h2><p className="mt-1 text-sm text-slate-600">Approve eligible bidders before they can place bids.</p><div className="mt-4 space-y-3">{registrations.length ? registrations.map((registration) => <div key={registration._id} className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-100 pb-3"><div><p className="font-semibold">{registration.bidder?.userName}</p><p className="text-sm text-slate-600">{registration.bidder?.email}</p></div><div className="flex items-center gap-2"><span className="text-sm capitalize text-slate-600">{registration.status}</span>{registration.status === "pending" && <><button onClick={() => reviewRegistration(registration._id, "approved")} className="rounded-md bg-amber-700 px-3 py-2 text-sm font-semibold text-white">Approve</button><button onClick={() => reviewRegistration(registration._id, "rejected")} className="rounded-md border border-slate-300 px-3 py-2 text-sm font-semibold text-slate-700">Reject</button></>}</div></div>) : <p className="text-sm text-slate-600">No bidder registrations yet.</p>}</div></section>}
             </div>
             <div className="flex-1">
               <header className="bg-stone-200 py-4 text-[24px] font-semibold px-4">

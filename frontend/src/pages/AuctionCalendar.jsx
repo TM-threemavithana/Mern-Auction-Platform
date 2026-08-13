@@ -1,0 +1,9 @@
+import Card from "@/custom-components/Card";
+import { Link } from "react-router-dom";
+import { useSelector } from "react-redux";
+
+const AuctionCalendar = ({ results = false }) => {
+  const { allAuctions } = useSelector((state) => state.auction); const now = new Date(); const auctions = allAuctions.filter((auction) => results ? new Date(auction.endTime) < now : new Date(auction.endTime) >= now).sort((a, b) => results ? new Date(b.endTime) - new Date(a.endTime) : new Date(a.startTime) - new Date(b.startTime));
+  return <main className="mx-auto min-h-[calc(100vh-14rem)] max-w-7xl px-4 py-10 sm:px-6"><Link to="/auctions" className="text-sm font-semibold text-amber-700 hover:text-amber-800">Browse all auctions</Link><p className="mt-6 text-sm font-semibold uppercase tracking-wide text-amber-700">Auction archive</p><h1 className="mt-2 text-3xl font-bold text-slate-950 sm:text-4xl">{results ? "Past auction results" : "Auction calendar"}</h1><p className="mt-3 max-w-2xl text-slate-600">{results ? "Explore completed lots and their recorded winning bids." : "Plan ahead with live and upcoming lots, ordered by their scheduled start."}</p>{auctions.length ? <div className="mt-8 flex flex-wrap gap-6">{auctions.map((auction) => <div key={auction._id} className="relative"><Card title={auction.title} startTime={auction.startTime} endTime={auction.endTime} imgSrc={auction.image?.url} startingBid={auction.startingBid} id={auction._id}/>{results && <p className="mt-2 text-sm font-semibold text-emerald-800">Recorded bid: LKR {Number(auction.currentBid || auction.startingBid).toLocaleString("en-LK", { minimumFractionDigits: 2 })}</p>}</div>)}</div> : <div className="mt-8 rounded-xl border border-dashed border-slate-300 bg-white p-10 text-center text-slate-600">No {results ? "completed" : "upcoming"} auctions are available yet.</div>}</main>;
+};
+export default AuctionCalendar;

@@ -1,0 +1,9 @@
+import { useState } from "react";
+import LotImageZoom from "@/components/LotImageZoom";
+
+const LotImageGallery = ({ images = [], alt }) => {
+  const validImages = images.map((image) => typeof image === "string" ? image : image?.url).filter(Boolean); const [selected, setSelected] = useState(0); const [open, setOpen] = useState(false);
+  if (!validImages.length) return <LotImageZoom src="" alt={alt}/>;
+  return <div><LotImageZoom src={validImages[selected]} alt={`${alt} image ${selected + 1}`}/><div className="mt-3 flex gap-2 overflow-x-auto pb-1">{validImages.map((src, index) => <button key={src} onClick={() => setSelected(index)} className={`h-16 w-16 shrink-0 overflow-hidden rounded-md border-2 ${index === selected ? "border-amber-600" : "border-slate-200"}`} aria-label={`View image ${index + 1}`}><img src={src} alt="" className="h-full w-full object-cover"/></button>)}<button onClick={() => setOpen(true)} className="h-16 shrink-0 rounded-md border border-slate-300 px-3 text-xs font-semibold text-slate-700 hover:bg-slate-50">Full screen</button></div>{open && <div role="dialog" aria-modal="true" aria-label="Full screen lot images" className="fixed inset-0 z-[100] grid place-items-center bg-slate-950/90 p-4"><div className="relative w-full max-w-5xl"><button onClick={() => setOpen(false)} className="absolute right-2 top-2 z-10 rounded-md bg-white px-3 py-2 text-sm font-semibold text-slate-900">Close</button><img src={validImages[selected]} alt={`${alt} image ${selected + 1}`} className="max-h-[85vh] w-full rounded-lg bg-white object-contain"/><div className="mt-3 flex justify-center gap-2">{validImages.map((src, index) => <button key={src} onClick={() => setSelected(index)} className={`h-12 w-12 overflow-hidden rounded ${index === selected ? "ring-2 ring-amber-400" : "opacity-70"}`}><img src={src} alt="" className="h-full w-full object-cover"/></button>)}</div></div></div>}</div>;
+};
+export default LotImageGallery;
